@@ -6,6 +6,7 @@ package org.bertcarnell.test.assertextensions;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.math.BigDecimal;
 import static org.bertcarnell.test.assertextensions.AssertExtensions.*;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -48,28 +49,30 @@ public class AssertExtensionsTest {
             try
             {
                 assertThatIsExpectedToFailOnWrongException();
-                fail("Did not throw");
+                throw new NoSuchMethodException("Did not throw");
             }
             catch (AssertionError e)
             {
+                System.out.println("\tExpected Exception: " + e.getMessage());
                 pass();
             }
             catch (Exception e2)
             {
-                fail("Wrong exception thrown");
+                fail("Wrong exception thrown:" + e2.getMessage());
             }
             try
             {
                 assertThatIsExpectedToFailOnMissingException();
-                fail("Did not throw");
+                throw new NoSuchMethodException("Did not throw");
             }
             catch (AssertionError e)
             {
+                System.out.println("\tExpected Exception: " + e.getMessage());
                 pass();
             }
             catch (Exception e2)
             {
-                fail("Wrong exception thrown");
+                fail("Wrong exception thrown:" + e2.getMessage());
             }
         }
         abstract void assertThatIsExpectedToPass() throws Exception;
@@ -206,15 +209,16 @@ public class AssertExtensionsTest {
         try
         {
             assertThrows("a message", NumberFormatException.class, new Double(0), "parseDouble", "a");
-            fail("Did not throw");
+            throw new NoSuchMethodException("Did not throw");
         }
         catch (AssertionError e)
         {
+            System.out.println("\tExpected Exception: " + e.getMessage());
             pass();
         }
         catch (Exception e2)
         {
-            fail("Wrong exception thrown");
+            fail("Wrong exception thrown:" + e2.getMessage());
         }
     }
 
@@ -246,15 +250,16 @@ public class AssertExtensionsTest {
         try
         {
             assertConstuctorThrows(NumberFormatException.class, Double.class.getConstructor(String.class), "1.0");
-            fail("Did not throw");
+            throw new NoSuchMethodException("Did not throw");
         }
         catch (AssertionError e)
         {
+            System.out.println("\tExpected Exception: " + e.getMessage());
             pass();
         }
         catch (Exception e2)
         {
-            fail("Wrong exception thrown");
+            fail("Wrong exception thrown:" + e2.getMessage());
         }
     }
 
@@ -265,5 +270,134 @@ public class AssertExtensionsTest {
     public void testPass() {
         System.out.println("pass");
         pass();
+    }
+
+    /**
+     * Test of assertEqualsLRE method, of class AssertExtensions.
+     */
+    @Test
+    public void testAssertEqualsLRE_3args_1() {
+        System.out.println("assertEqualsLRE");
+        double expected = 1234.5678;
+        double actual = 1234.5679;
+        // will pass
+        assertEqualsLRE(expected, actual, 7);
+        // will fail
+        try
+        {
+            assertEqualsLRE(expected, actual, 8);
+            throw new NoSuchMethodException("Not thrown");
+        }
+        catch (AssertionError e)
+        {
+            System.out.println("\tExpected Exception: " + e.getMessage());
+            pass();
+        }
+        catch (Exception e2)
+        {
+            fail("Wrong exception thrown:" + e2.getMessage());
+        }
+    }
+
+    /**
+     * Test of assertEqualsLRE method, of class AssertExtensions.
+     */
+    @Test
+    public void testAssertEqualsLRE_4args_1() {
+        System.out.println("assertEqualsLRE");
+        String message = "abc";
+        double expected = 1.23456E-50;
+        double actual = 1.23499E-50;
+        // will pass
+        assertEqualsLRE(message, expected, actual, 3);
+        // will fail
+        try
+        {
+            assertEqualsLRE(message, expected, actual, 4);
+            throw new NoSuchMethodException("Not thrown");
+        }
+        catch (AssertionError e)
+        {
+            System.out.println("\tExpected Exception: " + e.getMessage());
+            pass();
+        }
+        catch (Exception e2)
+        {
+            fail("Wrong exception thrown:" + e2.getMessage());
+        }
+        expected = 0.00067890234;
+        actual = 0.00067891111;
+        // will pass
+        assertEqualsLRE(message, expected, actual, 4);
+        // will fail
+        try
+        {
+            assertEqualsLRE(message, expected, actual, 5);
+            throw new NoSuchMethodException("Not thrown");
+        }
+        catch (AssertionError e)
+        {
+            System.out.println("\tExpected Exception: " + e.getMessage());
+            pass();
+        }
+        catch (Exception e2)
+        {
+            fail("Wrong exception thrown:" + e2.getMessage());
+        }
+    }
+
+    /**
+     * Test of assertEqualsLRE method, of class AssertExtensions.
+     */
+    @Test
+    public void testAssertEqualsLRE_3args_2() {
+        System.out.println("assertEqualsLRE");
+        BigDecimal expected = new BigDecimal("123456712345671234567");
+        BigDecimal actual = new BigDecimal("123456712345671234568");
+        // will pass
+        assertEqualsLRE(expected, actual, 20);
+        // will fail
+        try
+        {
+            assertEqualsLRE(expected, actual, 21);
+            throw new NoSuchMethodException("Not thrown");
+        }
+        catch (AssertionError e)
+        {
+            System.out.println("\tExpected Exception: " + e.getMessage());
+            pass();
+        }
+        catch (Exception e2)
+        {
+            fail("Wrong exception thrown:" + e2.getMessage());
+        }
+    }
+
+    /**
+     * Test of assertEqualsLRE method, of class AssertExtensions.
+     */
+    @Test
+    public void testAssertEqualsLRE_4args_2() {
+        System.out.println("assertEqualsLRE");
+        BigDecimal expected = new BigDecimal("123456712345671234567");
+        BigDecimal actual = new BigDecimal("123456712345671234568");
+        String message = "abc";
+        // will pass
+        assertEqualsLRE(message, expected, actual, 20);
+        // will fail
+        try
+        {
+            assertEqualsLRE(message, expected, actual, 21);
+            throw new NoSuchMethodException("Not thrown");
+        }
+        catch (AssertionError e)
+        {
+            System.out.println("\tExpected Exception: " + e.getMessage());
+            pass();
+        }
+        catch (Exception e2)
+        {
+            fail("Wrong exception thrown:" + e2.getMessage());
+        }
     }
 }

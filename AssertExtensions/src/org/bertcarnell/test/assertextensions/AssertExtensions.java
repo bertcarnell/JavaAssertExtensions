@@ -7,7 +7,10 @@ import java.beans.Statement;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.math.BigDecimal;
 import java.util.Arrays;
+import javax.validation.constraints.NotNull;
+import junit.framework.Assert;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -120,7 +123,7 @@ public class AssertExtensions
      * @param methodName the name of the method that is to be called
      * @param arguments the arguments to be passed to the method
      */
-    public static void assertThrows(Class<? extends Throwable> expectedException, Object target, String methodName, Object... arguments) 
+    public static void assertThrows(@NotNull Class<? extends Throwable> expectedException, @NotNull Object target, @NotNull String methodName, Object... arguments) 
     {
         // create a java.beans.statement which works like Method in refelction
         Statement oStatement = new Statement(target, methodName, arguments);
@@ -152,7 +155,7 @@ public class AssertExtensions
      * @param methodName the name of the method that is to be called
      * @param arguments the arguments to be passed to the method
      */
-    public static void assertThrows(String message, Class<? extends Throwable> expectedException, Object target, String methodName, Object... arguments) 
+    public static void assertThrows(@NotNull String message, @NotNull Class<? extends Throwable> expectedException, @NotNull Object target, @NotNull String methodName, Object... arguments) 
     {
         // create a java.beans.statement which works like Method in refelction
         Statement oStatement = new Statement(target, methodName, arguments);
@@ -187,13 +190,11 @@ public class AssertExtensions
      * @param constr the target constructor
      * @param arguments the arguments to be passed to the constructor
      */
-    public static void assertConstuctorThrows(Class<? extends Throwable> expectedException, Constructor<?> constr, Object... arguments)
+    public static void assertConstuctorThrows(@NotNull Class<? extends Throwable> expectedException, @NotNull Constructor<?> constr, Object... arguments)
     {
         try
         {
-            if (constr != null) {
-                constr.newInstance(arguments);
-            }
+            constr.newInstance(arguments);
             fail(String.format("Constructor %s did not throw %s as expected", constr.getName()));
         }
         catch (InstantiationException | InvocationTargetException e)
@@ -216,5 +217,120 @@ public class AssertExtensions
     public static void pass()
     {
         assertTrue(true);
+    }
+
+    /**
+     * Assert that expected and actual are equal to within a certain log relative error.
+     * Log relative error measures the number of significant digits of agreement.
+     * @param expected
+     * @param actual
+     * @param lre log relative error desired
+     */
+    public static void assertEqualsLRE(double expected, double actual, int lre)
+    {
+        assertEqualsLRE("", expected, actual, lre);
+    }
+
+    /**
+     * Assert that expected and actual are equal to within a certain log relative error.
+     * Log relative error measures the number of significant digits of agreement.
+     * @param message message if the test fails
+     * @param expected
+     * @param actual
+     * @param lre log relative error desired
+     */
+    public static void assertEqualsLRE(@NotNull String message, double expected, double actual, int lre)
+    {
+        if (expected == actual)
+        {
+            return;
+        }
+        double testlre = -1.0 * Math.log10(Math.abs(actual-expected)) + Math.log10(Math.abs(expected));
+        if ((int) Math.floor(testlre) < lre)
+        {
+            if (!message.isEmpty())
+            {
+                Assert.failNotEquals(String.format("%s <LRE: %f>", message, testlre), expected, actual);
+            }
+            else
+            {
+                Assert.failNotEquals(String.format("<LRE: %f>", testlre), expected, actual);
+            }
+        }
+    }
+    
+    /**
+     * Assert that expected and actual are equal to within a certain log relative error.
+     * Log relative error measures the number of significant digits of agreement.
+     * @param expected
+     * @param actual
+     * @param lre log relative error desired
+     */
+    public static void assertEqualsLRE(BigDecimal expected, BigDecimal actual, int lre)
+    {
+        assertEqualsLRE("", expected, actual, lre);
+    }
+    
+    /**
+     * Assert that expected and actual are equal to within a certain log relative error.
+     * Log relative error measures the number of significant digits of agreement.
+     * @param message message if the test fails
+     * @param expected
+     * @param actual
+     * @param lre log relative error desired
+     */
+    public static void assertEqualsLRE(@NotNull String message, BigDecimal expected, BigDecimal actual, int lre)
+    {
+        if (expected == null && actual == null)
+        {
+            //return;
+        }
+        else if (expected == null || actual == null)
+        {
+            fail(Assert.format(message, expected, actual));
+        }
+        // if they are the same object, return
+        else if (expected.equals(actual))
+        {
+            //return;
+        }
+        // if they are numerically equal, return
+        else if (expected.compareTo(actual) == 0)
+        {
+            //return;
+        }
+        else
+        {
+            // turn the big decimal to a string and count the digits of agreement
+            char[] s_expected = expected.toString().toCharArray();
+            char[] s_actual = actual.toString().toCharArray();
+
+            int minLength = Math.min(s_expected.length, s_actual.length);
+            int testlre = 0;
+            for (int i = 0; i < minLength; i++)
+            {
+                // if they are not equal, break
+                if (s_expected[i] != s_actual[i])
+                {
+                    break;
+                }
+                // if they are equal, but one is E then break because the exponenet isn't compared
+                else if (s_expected[i] == 'E' || s_expected[i] == 'e')
+                {
+                    break;
+                }
+                // if the deimal place is compared, skip it
+                else if (s_expected[i] == '.')
+                {
+                    continue;
+                }
+                // otherwise, increase the count
+                testlre++;
+            }
+            if (testlre < lre)
+            {
+                fail(Assert.format(message, expected.toString(), actual.toString()) + String.format(" LRE: <%d>", testlre));
+            }
+        }
     }
 }
