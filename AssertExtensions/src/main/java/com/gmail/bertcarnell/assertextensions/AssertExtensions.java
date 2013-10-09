@@ -239,19 +239,29 @@ public class AssertExtensions
      */
     public static void assertEqualsLRE(@NotNull String message, double expected, double actual, int lre)
     {
+        double testlre;
         if (expected == actual)
         {
             return;
         }
-        double testlre = -1.0 * Math.log10(Math.abs(actual-expected)) + Math.log10(Math.abs(expected));
+        if (expected == 0.0)
+        {
+            testlre = -1.0 * Math.log10(Math.abs(actual));
+        }
+        else
+        {
+            testlre = -1.0 * Math.log10(Math.abs(actual-expected)) + Math.log10(Math.abs(expected));
+        }
         if ((int) Math.floor(testlre) < lre)
         {
             if (!message.isEmpty())
             {
+                // use assertSame so that it fails and prints like the other assert errors
                 assertSame(String.format("%s <LRE: %f>", message, testlre), expected, actual);
             }
             else
             {
+                // use assertSame so that it fails and prints like the other assert errors
                 assertSame(String.format("<LRE: %f>", testlre), expected, actual);
             }
         }

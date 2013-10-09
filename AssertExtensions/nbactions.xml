@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<actions>
+        <action>
+            <actionName>CUSTOM-deploy</actionName>
+            <displayName>deploy</displayName>
+            <goals>
+                <goal>clean</goal>
+                <goal>source:jar</goal>
+                <goal>javadoc:jar</goal>
+                <goal>deploy</goal>
+            </goals>
+            <properties>
+                <altDeploymentRepository>snapshot-repo::default::file:../../bertcarnellMavenMicroRepo/snapshots</altDeploymentRepository>
+            </properties>
+        </action>
+        <action>
+            <actionName>CUSTOM-deploy-release</actionName>
+            <displayName>deploy-release</displayName>
+            <goals>
+                <goal>clean</goal>
+                <goal>source:jar</goal>
+                <goal>javadoc:jar</goal>
+                <goal>deploy</goal>
+            </goals>
+            <properties>
+                <altDeploymentRepository>repo::default::file:../../bertcarnellMavenMicroRepo/releases</altDeploymentRepository>
+            </properties>
+        </action>
+    </actions>
