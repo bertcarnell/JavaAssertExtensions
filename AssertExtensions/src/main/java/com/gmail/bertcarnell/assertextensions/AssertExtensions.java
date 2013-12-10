@@ -21,33 +21,49 @@ import javax.validation.constraints.NotNull;
 
 /**
  * Adds additional Assert methods to the JUnit implementation
- * <p>The AssertThrow methods are necessary for a couple of reasons
+ * <p>
+ * The AssertThrow methods are necessary for a couple of reasons
  * <ul>
- *   <li> The <code>@Test(exception=..)</code> paradigm does not work because it is only
- *        looking for at least one statement in a test method to throw.  If there
- *        are multiple statements in the test method that should throw, then they
- *        would have to be broken out into individual test methods
- *   <li> The <code>try{statement; fail()}catch(Exception){assertTrue(true)}</code> paradigm works,
- *        but is unacceptably long and redundant in the test code.
- *   <li> The <code>Exception</code> class also has the same drawbacks as the <code>@Test</code> paradigm.
+ * <li>The <code>@Test(exception=..)</code> paradigm does not work because it is only looking for at least one statement in a test
+ * method to throw. If there are multiple statements in the test method that should throw, then they would have to be broken out
+ * into individual test methods
+ * <li>The <code>try{statement; fail()}catch(Exception){assertTrue(true)}</code> paradigm works, but is unacceptably long and
+ * redundant in the test code.
+ * <li>The <code>Exception</code> class also has the same drawbacks as the <code>@Test</code> paradigm.
  * </ul>
+ *
  * @author Robert Carnell (bertcarnell@gmail.com)
  * @author Dave Rigsby
- * @author Mariano Navas (marianudo@gmail.com)
+ * @author Mariano Navas
  */
-public class AssertExtensions
-{
+public class AssertExtensions {
     /**
      * Prevent instantiation of this class.
      */
-    private AssertExtensions() {}
+    private AssertExtensions() {
+    }
 
+    /**
+     * Checks that the logic wrapped by the given Runnable throw an exception of the specified type (only valid for
+     * RuntimeExceptions given that the run method of the Runnable interface exposes no throws signature).
+     *
+     * @param excType
+     *            The Class corresponding to the expected exception.
+     * @param throwerClosure
+     *            Closure like object that represents the code expected to throw an exception.
+     */
     public static <T extends Throwable> void assertThrows(Class<T> excType, final Runnable throwerClosure) {
         assertThrows(excType, throwerClosure, null);
     }
 
-    public static <T extends Throwable> void assertThrows(Class<T> excType, final Runnable throwerClosure,
-            String customFailMessage) {
+    /**
+     * Similar to the other assertThrows methods. Allows us to pass a custom fail message in case the assertion doesn't pass.
+     *
+     * @param excType
+     * @param throwerClosure
+     * @param customFailMessage
+     */
+    public static <T extends Throwable> void assertThrows(Class<T> excType, final Runnable throwerClosure, String customFailMessage) {
         ExceptionAssertionsPerformer<T> excAssertsPerformer = new ExceptionAssertionsPerformer<T>() {
             @Override
             public void performThrowingAction() {
@@ -62,6 +78,11 @@ public class AssertExtensions
         asserThrowsAndDoAssertsInCatch(excType, excAssertsPerformer, customFailMessage);
     }
 
+    /**
+     * Checks if the given exception type is thrown and perform the given assertions in that exception object.
+     * @param excType
+     * @param excAssertsPerformer
+     */
     public static <T extends Throwable> void asserThrowsAndDoAssertsInCatch(Class<T> excType,
             ExceptionAssertionsPerformer<T> excAssertsPerformer) {
         asserThrowsAndDoAssertsInCatch(excType, excAssertsPerformer, null);
@@ -71,6 +92,12 @@ public class AssertExtensions
         assertEquals(new ArrayList<Object>(expected), new ArrayList<Object>(actual));
     }
 
+    /**
+     * Similar to the method with the same name. Allows us to customize the error message.
+     * @param excType
+     * @param excAssertsPerformer
+     * @param customFailMessage
+     */
     @SuppressWarnings("unchecked")
     public static <T extends Throwable> void asserThrowsAndDoAssertsInCatch(Class<T> excType,
             ExceptionAssertionsPerformer<T> excAssertsPerformer, String customFailMessage) {
@@ -89,8 +116,8 @@ public class AssertExtensions
         }
     }
 
-    private static String createExpectedExceptionMessage(Class<? extends Throwable> excType,
-            Class<? extends Throwable> actualType, String customFailMessage) {
+    private static String createExpectedExceptionMessage(Class<? extends Throwable> excType, Class<? extends Throwable> actualType,
+            String customFailMessage) {
         String suffix;
         if (actualType != null) {
             suffix = String.format(", but was %s", actualType.getName());
@@ -106,6 +133,7 @@ public class AssertExtensions
 
     /**
      * Alternate method of assertThrows using Methods and reflection
+     *
      * @deprecated Is not robust to overloaded methods
      * @param expectedException
      * @param target
@@ -115,34 +143,29 @@ public class AssertExtensions
      * @throws InvocationTargetException
      */
     @Deprecated
-    public static void assertThrowsAlternate(Class<? extends Throwable> expectedException, Object target, String methodName, Object... arguments)
-            throws IllegalAccessException, InvocationTargetException
-    {
+    public static void assertThrowsAlternate(Class<? extends Throwable> expectedException, Object target, String methodName,
+            Object... arguments) throws IllegalAccessException, InvocationTargetException {
         Method[] methods = target.getClass().getMethods();
         Method method = null;
         int matchingMethodCount = 0;
-        for (Method m : methods)
-        {
-            if (m.getName().equals(methodName))
-            {
+        for (Method m : methods) {
+            if (m.getName().equals(methodName)) {
                 method = m;
                 matchingMethodCount++;
             }
         }
-        if (method != null && matchingMethodCount == 1)
-        {
+        if (method != null && matchingMethodCount == 1) {
             assertThrowsAlternate(expectedException, target, method, arguments);
-        }
-        else if (matchingMethodCount > 1) {
+        } else if (matchingMethodCount > 1) {
             throw new IllegalArgumentException(String.format("Method %s is overloaded.  Use the alternate AssertThrows", methodName));
-        }
-        else {
+        } else {
             throw new IllegalArgumentException(String.format("Method %s not found on %s", methodName, target.getClass().toString()));
         }
     }
 
     /**
      * Alternate Method of assertThrows using Methods
+     *
      * @deprecated requires too much setup during testing
      * @param expectedException
      * @param target
@@ -153,69 +176,69 @@ public class AssertExtensions
      */
     @Deprecated
     public static void assertThrowsAlternate(Class<? extends Throwable> expectedException, Object target, Method method, Object[] arguments)
-            throws IllegalAccessException, InvocationTargetException
-    {
-        try
-        {
+            throws IllegalAccessException, InvocationTargetException {
+        try {
             method.invoke(target, arguments);
             fail(String.format("Method %s did not throw %s as expected", method.getName(), expectedException.toString()));
         }
         // e will be an InvocationTargetException with inner Exception of the type that we are looking for
-        catch (InvocationTargetException e)
-        {
+        catch (InvocationTargetException e) {
             if (e.getCause().getClass() != expectedException) {
-                fail(String.format("Method %s threw %s, but %s was expected", method.getName(), e.getCause().toString(), expectedException.toString()));
-            }
-            else {
+                fail(String.format("Method %s threw %s, but %s was expected", method.getName(), e.getCause().toString(),
+                        expectedException.toString()));
+            } else {
                 pass();
             }
-        }
-        catch (IllegalAccessException | IllegalArgumentException e2)
-        {
-            fail(String.format("Error in invoking method %s on target %s with arguments %s: %s", method.getName(), target.toString(), Arrays.toString(arguments), e2.getMessage()));
+        } catch (IllegalAccessException | IllegalArgumentException e2) {
+            fail(String.format("Error in invoking method %s on target %s with arguments %s: %s", method.getName(), target.toString(),
+                    Arrays.toString(arguments), e2.getMessage()));
         }
     }
 
     /**
      * Unit test to assert that a specific type of exception is thrown
-     * <p> Examples:</p>
+     * <p>
+     * Examples:
+     * </p>
      * <ul>
-     *   <li>Assert passes because the right exception is thrown:
-     *   <ul>
-     *     <li><code>assertThrows(NumberFormatException.class, new Double(0), "parseDouble", "a");</code>
-     *   </ul>
-     *   <li>Assert fails because the wrong exception is thrown:
-     *   <ul>
-     *     <li><code>assertThrows(ArithmeticException.class, new Double(0), "parseDouble", "a");</code>
-     *   </ul>
-     *   <li>Assert fails because an exception isn't thrown by the method when one is expected
-     *   <ul>
-     *     <li><code>assertThrows(NumberFormatException.class, new Double(0), "parseDouble", "1");</code>
-     *   </ul>
+     * <li>Assert passes because the right exception is thrown:
+     * <ul>
+     * <li><code>assertThrows(NumberFormatException.class, new Double(0), "parseDouble", "a");</code>
      * </ul>
-     * @param expectedException The class of the expected exception type
-     * @param target the target object that the method will be called from
-     * @param methodName the name of the method that is to be called
-     * @param arguments the arguments to be passed to the method
+     * <li>Assert fails because the wrong exception is thrown:
+     * <ul>
+     * <li><code>assertThrows(ArithmeticException.class, new Double(0), "parseDouble", "a");</code>
+     * </ul>
+     * <li>Assert fails because an exception isn't thrown by the method when one is expected
+     * <ul>
+     * <li><code>assertThrows(NumberFormatException.class, new Double(0), "parseDouble", "1");</code>
+     * </ul>
+     * </ul>
+     *
+     * @param expectedException
+     *            The class of the expected exception type
+     * @param target
+     *            the target object that the method will be called from
+     * @param methodName
+     *            the name of the method that is to be called
+     * @param arguments
+     *            the arguments to be passed to the method
      */
-    public static void assertThrows(@NotNull Class<? extends Throwable> expectedException, @NotNull Object target, @NotNull String methodName, Object... arguments)
-    {
+    public static void assertThrows(@NotNull Class<? extends Throwable> expectedException, @NotNull Object target,
+            @NotNull String methodName, Object... arguments) {
         // create a java.beans.statement which works like Method in refelction
         Statement oStatement = new Statement(target, methodName, arguments);
-        try
-        {
+        try {
             oStatement.execute(); // throws Exception
             // if Exception is not thrown
             fail(String.format("Method %s did not throw %s as expected", oStatement.getMethodName(), expectedException.toString()));
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             // the class of the Exception should match the expectedException
             Class<?> temp = e.getClass();
             if (temp != expectedException) {
-                fail(String.format("Method %s threw %s, but %s was expected", oStatement.getMethodName(), temp.toString(), expectedException.toString()));
-            }
-            else {
+                fail(String.format("Method %s threw %s, but %s was expected", oStatement.getMethodName(), temp.toString(),
+                        expectedException.toString()));
+            } else {
                 pass();
             }
         }
@@ -223,34 +246,37 @@ public class AssertExtensions
 
     /**
      * Unit test to assert that a specific type of exception with a specific message is thrown
+     *
      * @see assertThrows
-     * @param message The expected message
-     * @param expectedException The class of the expected exception type
-     * @param target the target object that the method will be called from
-     * @param methodName the name of the method that is to be called
-     * @param arguments the arguments to be passed to the method
+     * @param message
+     *            The expected message
+     * @param expectedException
+     *            The class of the expected exception type
+     * @param target
+     *            the target object that the method will be called from
+     * @param methodName
+     *            the name of the method that is to be called
+     * @param arguments
+     *            the arguments to be passed to the method
      */
-    public static void assertThrows(@NotNull String message, @NotNull Class<? extends Throwable> expectedException, @NotNull Object target, @NotNull String methodName, Object... arguments)
-    {
+    public static void assertThrows(@NotNull String message, @NotNull Class<? extends Throwable> expectedException, @NotNull Object target,
+            @NotNull String methodName, Object... arguments) {
         // create a java.beans.statement which works like Method in refelction
         Statement oStatement = new Statement(target, methodName, arguments);
-        try
-        {
+        try {
             oStatement.execute(); // throws Exception
             // if Exception is not thrown
             fail(String.format("Method %s did not throw %s as expected", oStatement.getMethodName(), expectedException.toString()));
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             // the class of the Exception should match the expectedException
             Class<?> temp = e.getClass();
             if (temp != expectedException) {
-                fail(String.format("Method %s threw %s, but %s was expected", oStatement.getMethodName(), temp.toString(), expectedException.toString()));
-            }
-            else if (!e.getMessage().equals(message)) {
-                fail(String.format("Method %s threw %s, but contained message %s when %s was expected", oStatement.getMethodName(), temp.toString(), e.getMessage(), message));
-            }
-            else {
+                fail(String.format("Method %s threw %s, but %s was expected", oStatement.getMethodName(), temp.toString(),
+                        expectedException.toString()));
+            } else if (!e.getMessage().equals(message)) {
+                fail(String.format("Method %s threw %s, but contained message %s when %s was expected", oStatement.getMethodName(),
+                        temp.toString(), e.getMessage(), message));
+            } else {
                 pass();
             }
         }
@@ -258,86 +284,81 @@ public class AssertExtensions
 
     /**
      * assertThrows for Constructors using reflection
-     * <p><b>Warning:</b>  This method cannot tell the difference between constructors
-     * when the only difference is a primitive type.  For example, it cannot tell
-     * the difference between A(double[], Object, double) and A(double[], Object, int)
-     * @param expectedException The class of the expected exception type
-     * @param constr the target constructor
-     * @param arguments the arguments to be passed to the constructor
+     * <p>
+     * <b>Warning:</b> This method cannot tell the difference between constructors when the only difference is a primitive type.
+     * For example, it cannot tell the difference between A(double[], Object, double) and A(double[], Object, int)
+     *
+     * @param expectedException
+     *            The class of the expected exception type
+     * @param constr
+     *            the target constructor
+     * @param arguments
+     *            the arguments to be passed to the constructor
      */
-    public static void assertConstuctorThrows(@NotNull Class<? extends Throwable> expectedException, @NotNull Constructor<?> constr, Object... arguments)
-    {
-        try
-        {
+    public static void assertConstuctorThrows(@NotNull Class<? extends Throwable> expectedException, @NotNull Constructor<?> constr,
+            Object... arguments) {
+        try {
             constr.newInstance(arguments);
             fail(String.format("Constructor %s did not throw %s as expected", constr.getName()));
-        }
-        catch (InstantiationException | InvocationTargetException e)
-        {
+        } catch (InstantiationException | InvocationTargetException e) {
             if (e.getCause().getClass() != expectedException) {
-                fail(String.format("Constructor %s threw %s, but %s was expected", constr.getName(), e.getCause().toString(), expectedException.toString()));
-            }
-            else {
+                fail(String.format("Constructor %s threw %s, but %s was expected", constr.getName(), e.getCause().toString(),
+                        expectedException.toString()));
+            } else {
                 pass();
             }
-        }
-        catch (IllegalAccessException | IllegalArgumentException e2)
-        {
-            fail(String.format("Error in invoking constructor %s with arguments %s: %s", constr.getName(), Arrays.toString(arguments), e2.getMessage()));
+        } catch (IllegalAccessException | IllegalArgumentException e2) {
+            fail(String.format("Error in invoking constructor %s with arguments %s: %s", constr.getName(), Arrays.toString(arguments),
+                    e2.getMessage()));
         }
     }
+
     /**
      * Extension shorthand for <code>assertTrue(true)</code> to mirror <code>fail()</code>
      */
-    public static void pass()
-    {
+    public static void pass() {
         assertTrue(true);
     }
 
     /**
-     * Assert that expected and actual are equal to within a certain log relative error.
-     * Log relative error measures the number of significant digits of agreement.
+     * Assert that expected and actual are equal to within a certain log relative error. Log relative error measures the number of
+     * significant digits of agreement.
+     *
      * @param expected
      * @param actual
-     * @param lre log relative error desired
+     * @param lre
+     *            log relative error desired
      */
-    public static void assertEqualsLRE(double expected, double actual, int lre)
-    {
+    public static void assertEqualsLRE(double expected, double actual, int lre) {
         assertEqualsLRE("", expected, actual, lre);
     }
 
     /**
-     * Assert that expected and actual are equal to within a certain log relative error.
-     * Log relative error measures the number of significant digits of agreement.
-     * @param message message if the test fails
+     * Assert that expected and actual are equal to within a certain log relative error. Log relative error measures the number of
+     * significant digits of agreement.
+     *
+     * @param message
+     *            message if the test fails
      * @param expected
      * @param actual
-     * @param lre log relative error desired
+     * @param lre
+     *            log relative error desired
      */
-    public static void assertEqualsLRE(@NotNull String message, double expected, double actual, int lre)
-    {
+    public static void assertEqualsLRE(@NotNull String message, double expected, double actual, int lre) {
         double testlre;
-        if (expected == actual)
-        {
+        if (expected == actual) {
             return;
         }
-        if (expected == 0.0)
-        {
+        if (expected == 0.0) {
             testlre = -1.0 * Math.log10(Math.abs(actual));
+        } else {
+            testlre = -1.0 * Math.log10(Math.abs(actual - expected)) + Math.log10(Math.abs(expected));
         }
-        else
-        {
-            testlre = -1.0 * Math.log10(Math.abs(actual-expected)) + Math.log10(Math.abs(expected));
-        }
-        if ((int) Math.floor(testlre) < lre)
-        {
-            if (!message.isEmpty())
-            {
+        if ((int) Math.floor(testlre) < lre) {
+            if (!message.isEmpty()) {
                 // use assertSame so that it fails and prints like the other assert errors
                 assertSame(String.format("%s <LRE: %f>", message, testlre), expected, actual);
-            }
-            else
-            {
+            } else {
                 // use assertSame so that it fails and prints like the other assert errors
                 assertSame(String.format("<LRE: %f>", testlre), expected, actual);
             }
@@ -345,76 +366,67 @@ public class AssertExtensions
     }
 
     /**
-     * Assert that expected and actual are equal to within a certain log relative error.
-     * Log relative error measures the number of significant digits of agreement.
+     * Assert that expected and actual are equal to within a certain log relative error. Log relative error measures the number of
+     * significant digits of agreement.
+     *
      * @param expected
      * @param actual
-     * @param lre log relative error desired
+     * @param lre
+     *            log relative error desired
      */
-    public static void assertEqualsLRE(BigDecimal expected, BigDecimal actual, int lre)
-    {
+    public static void assertEqualsLRE(BigDecimal expected, BigDecimal actual, int lre) {
         assertEqualsLRE("", expected, actual, lre);
     }
 
     /**
-     * Assert that expected and actual are equal to within a certain log relative error.
-     * Log relative error measures the number of significant digits of agreement.
-     * @param message message if the test fails
+     * Assert that expected and actual are equal to within a certain log relative error. Log relative error measures the number of
+     * significant digits of agreement.
+     *
+     * @param message
+     *            message if the test fails
      * @param expected
      * @param actual
-     * @param lre log relative error desired
+     * @param lre
+     *            log relative error desired
      */
-    public static void assertEqualsLRE(@NotNull String message, BigDecimal expected, BigDecimal actual, int lre)
-    {
-        if (expected == null && actual == null)
-        {
-            //return;
-        }
-        else if (expected == null || actual == null)
-        {
+    public static void assertEqualsLRE(@NotNull String message, BigDecimal expected, BigDecimal actual, int lre) {
+        if (expected == null && actual == null) {
+            // return;
+        } else if (expected == null || actual == null) {
             assertSame(message, expected, actual);
         }
         // if they are the same object, return
-        else if (expected.equals(actual))
-        {
-            //return;
+        else if (expected.equals(actual)) {
+            // return;
         }
         // if they are numerically equal, return
-        else if (expected.compareTo(actual) == 0)
-        {
-            //return;
-        }
-        else
-        {
+        else if (expected.compareTo(actual) == 0) {
+            // return;
+        } else {
             // turn the big decimal to a string and count the digits of agreement
             char[] s_expected = expected.toString().toCharArray();
             char[] s_actual = actual.toString().toCharArray();
 
             int minLength = Math.min(s_expected.length, s_actual.length);
             int testlre = 0;
-            for (int i = 0; i < minLength; i++)
-            {
+            for (int i = 0; i < minLength; i++) {
                 // if they are not equal, break
-                if (s_expected[i] != s_actual[i])
-                {
+                if (s_expected[i] != s_actual[i]) {
                     break;
                 }
                 // if they are equal, but one is E then break because the exponenet isn't compared
-                else if (s_expected[i] == 'E' || s_expected[i] == 'e')
-                {
+                else if (s_expected[i] == 'E' || s_expected[i] == 'e') {
                     break;
                 }
                 // if the deimal place is compared, skip it
-                else if (s_expected[i] == '.')
-                {
+                else if (s_expected[i] == '.') {
                     continue;
                 }
                 // otherwise, increase the count
                 testlre++;
             }
-            if (testlre < lre)
-            {
-                assertSame(message  + String.format(" LRE: <%d>", testlre), expected.toString(), actual.toString());
+            if (testlre < lre) {
+                assertSame(message + String.format(" LRE: <%d>", testlre), expected.toString(), actual.toString());
             }
         }
     }
