@@ -3,14 +3,21 @@
  */
 package com.gmail.bertcarnell.assertextensions;
 
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertTrue;
+import static junit.framework.Assert.fail;
+import static org.junit.Assert.assertSame;
+
 import java.beans.Statement;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Set;
+
 import javax.validation.constraints.NotNull;
-import static org.junit.Assert.*;
 
 /**
  * Adds additional Assert methods to the JUnit implementation
@@ -26,9 +33,77 @@ import static org.junit.Assert.*;
  * </ul>
  * @author Robert Carnell (bertcarnell@gmail.com)
  * @author Dave Rigsby
+ * @author Mariano Navas (marianudo@gmail.com)
  */
-public class AssertExtensions 
+public class AssertExtensions
 {
+    /**
+     * Prevent instantiation of this class.
+     */
+    private AssertExtensions() {}
+
+    public static <T extends Throwable> void assertThrows(Class<T> excType, final Runnable throwerClosure) {
+        assertThrows(excType, throwerClosure, null);
+    }
+
+    public static <T extends Throwable> void assertThrows(Class<T> excType, final Runnable throwerClosure,
+            String customFailMessage) {
+        ExceptionAssertionsPerformer<T> excAssertsPerformer = new ExceptionAssertionsPerformer<T>() {
+            @Override
+            public void performThrowingAction() {
+                throwerClosure.run();
+            }
+
+            @Override
+            public void performAssertionsAfterCatch(T th) {
+                // Do nothing
+            }
+        };
+        asserThrowsAndDoAssertsInCatch(excType, excAssertsPerformer, customFailMessage);
+    }
+
+    public static <T extends Throwable> void asserThrowsAndDoAssertsInCatch(Class<T> excType,
+            ExceptionAssertionsPerformer<T> excAssertsPerformer) {
+        asserThrowsAndDoAssertsInCatch(excType, excAssertsPerformer, null);
+    }
+
+    public static void assertSetsEqualsAsLists(Set<?> expected, Set<?> actual) {
+        assertEquals(new ArrayList<Object>(expected), new ArrayList<Object>(actual));
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T extends Throwable> void asserThrowsAndDoAssertsInCatch(Class<T> excType,
+            ExceptionAssertionsPerformer<T> excAssertsPerformer, String customFailMessage) {
+        try {
+            excAssertsPerformer.performThrowingAction();
+            fail(createExpectedExceptionMessage(excType, null, customFailMessage));
+        } catch (Throwable th) {
+            if (!excType.isAssignableFrom(th.getClass())) {
+                fail(createExpectedExceptionMessage(excType, th.getClass(), customFailMessage));
+            }
+            try {
+                excAssertsPerformer.performAssertionsAfterCatch((T) th);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    private static String createExpectedExceptionMessage(Class<? extends Throwable> excType,
+            Class<? extends Throwable> actualType, String customFailMessage) {
+        String suffix;
+        if (actualType != null) {
+            suffix = String.format(", but was %s", actualType.getName());
+        } else {
+            suffix = ", but no exception was thrown";
+        }
+        String result = String.format("Expected %s%s", excType.getName(), suffix);
+        if (customFailMessage != null) {
+            result += "; " + customFailMessage;
+        }
+        return result;
+    }
+
     /**
      * Alternate method of assertThrows using Methods and reflection
      * @deprecated Is not robust to overloaded methods
@@ -39,7 +114,8 @@ public class AssertExtensions
      * @throws IllegalAccessException
      * @throws InvocationTargetException
      */
-    public static void assertThrowsAlternate(Class<? extends Throwable> expectedException, Object target, String methodName, Object... arguments) 
+    @Deprecated
+    public static void assertThrowsAlternate(Class<? extends Throwable> expectedException, Object target, String methodName, Object... arguments)
             throws IllegalAccessException, InvocationTargetException
     {
         Method[] methods = target.getClass().getMethods();
@@ -75,7 +151,8 @@ public class AssertExtensions
      * @throws IllegalAccessException
      * @throws InvocationTargetException
      */
-    public static void assertThrowsAlternate(Class<? extends Throwable> expectedException, Object target, Method method, Object[] arguments) 
+    @Deprecated
+    public static void assertThrowsAlternate(Class<? extends Throwable> expectedException, Object target, Method method, Object[] arguments)
             throws IllegalAccessException, InvocationTargetException
     {
         try
@@ -98,7 +175,7 @@ public class AssertExtensions
             fail(String.format("Error in invoking method %s on target %s with arguments %s: %s", method.getName(), target.toString(), Arrays.toString(arguments), e2.getMessage()));
         }
     }
-    
+
     /**
      * Unit test to assert that a specific type of exception is thrown
      * <p> Examples:</p>
@@ -117,11 +194,11 @@ public class AssertExtensions
      *   </ul>
      * </ul>
      * @param expectedException The class of the expected exception type
-     * @param target the target object that the method will be called from 
+     * @param target the target object that the method will be called from
      * @param methodName the name of the method that is to be called
      * @param arguments the arguments to be passed to the method
      */
-    public static void assertThrows(@NotNull Class<? extends Throwable> expectedException, @NotNull Object target, @NotNull String methodName, Object... arguments) 
+    public static void assertThrows(@NotNull Class<? extends Throwable> expectedException, @NotNull Object target, @NotNull String methodName, Object... arguments)
     {
         // create a java.beans.statement which works like Method in refelction
         Statement oStatement = new Statement(target, methodName, arguments);
@@ -143,17 +220,17 @@ public class AssertExtensions
             }
         }
     }
- 
+
     /**
      * Unit test to assert that a specific type of exception with a specific message is thrown
      * @see assertThrows
      * @param message The expected message
      * @param expectedException The class of the expected exception type
-     * @param target the target object that the method will be called from 
+     * @param target the target object that the method will be called from
      * @param methodName the name of the method that is to be called
      * @param arguments the arguments to be passed to the method
      */
-    public static void assertThrows(@NotNull String message, @NotNull Class<? extends Throwable> expectedException, @NotNull Object target, @NotNull String methodName, Object... arguments) 
+    public static void assertThrows(@NotNull String message, @NotNull Class<? extends Throwable> expectedException, @NotNull Object target, @NotNull String methodName, Object... arguments)
     {
         // create a java.beans.statement which works like Method in refelction
         Statement oStatement = new Statement(target, methodName, arguments);
@@ -266,7 +343,7 @@ public class AssertExtensions
             }
         }
     }
-    
+
     /**
      * Assert that expected and actual are equal to within a certain log relative error.
      * Log relative error measures the number of significant digits of agreement.
@@ -278,7 +355,7 @@ public class AssertExtensions
     {
         assertEqualsLRE("", expected, actual, lre);
     }
-    
+
     /**
      * Assert that expected and actual are equal to within a certain log relative error.
      * Log relative error measures the number of significant digits of agreement.
