@@ -75,7 +75,7 @@ public class AssertExtensions {
                 // Do nothing
             }
         };
-        asserThrowsAndDoAssertsInCatch(excType, excAssertsPerformer, customFailMessage);
+        assertThrowsAndDoAssertsInCatch(excType, excAssertsPerformer, customFailMessage);
     }
 
     /**
@@ -85,7 +85,7 @@ public class AssertExtensions {
      */
     public static <T extends Throwable> void asserThrowsAndDoAssertsInCatch(Class<T> excType,
             ExceptionAssertionsPerformer<T> excAssertsPerformer) {
-        asserThrowsAndDoAssertsInCatch(excType, excAssertsPerformer, null);
+        assertThrowsAndDoAssertsInCatch(excType, excAssertsPerformer, null);
     }
 
     public static void assertSetsEqualsAsLists(Set<?> expected, Set<?> actual) {
@@ -99,7 +99,7 @@ public class AssertExtensions {
      * @param customFailMessage
      */
     @SuppressWarnings("unchecked")
-    public static <T extends Throwable> void asserThrowsAndDoAssertsInCatch(Class<T> excType,
+    public static <T extends Throwable> void assertThrowsAndDoAssertsInCatch(Class<T> excType,
             ExceptionAssertionsPerformer<T> excAssertsPerformer, String customFailMessage) {
         try {
             excAssertsPerformer.performThrowingAction();
