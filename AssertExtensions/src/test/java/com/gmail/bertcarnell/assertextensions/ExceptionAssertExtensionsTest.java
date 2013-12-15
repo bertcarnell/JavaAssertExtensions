@@ -67,11 +67,10 @@ public class ExceptionAssertExtensionsTest {
             try
             {
                 assertThatIsExpectedToFailOnWrongException();
-                throw new NoSuchMethodException("Did not throw");
+                throw new NoSuchMethodException("Did not throw when should have failed on wrong exception");
             }
             catch (AssertionError e)
             {
-                System.out.println("\tExpected Exception: " + e.getMessage());
                 pass();
             }
             catch (Exception e2)
@@ -81,11 +80,23 @@ public class ExceptionAssertExtensionsTest {
             try
             {
                 assertThatIsExpectedToFailOnMissingException();
-                throw new NoSuchMethodException("Did not throw");
+                throw new NoSuchMethodException("Did not throw when should have failed on missing exception");
             }
             catch (AssertionError e)
             {
-                System.out.println("\tExpected Exception: " + e.getMessage());
+                pass();
+            }
+            catch (Exception e2)
+            {
+                fail("Wrong exception thrown:" + e2.getMessage());
+            }
+            try
+            {
+                assertThatIsExpectedToFailOnWrongExceptionMessage();
+                throw new NoSuchMethodException("Did not throw when should have failed on wrong exception message");
+            }
+            catch (AssertionError e)
+            {
                 pass();
             }
             catch (Exception e2)
@@ -96,6 +107,7 @@ public class ExceptionAssertExtensionsTest {
         abstract void assertThatIsExpectedToPass() throws Exception;
         abstract void assertThatIsExpectedToFailOnWrongException() throws Exception;
         abstract void assertThatIsExpectedToFailOnMissingException() throws Exception;
+        void assertThatIsExpectedToFailOnWrongExceptionMessage() throws Exception {fail("prototype");};
     }
     
     @BeforeClass
@@ -199,20 +211,132 @@ public class ExceptionAssertExtensionsTest {
      * Test of asserThrowsAndDoAssertsInCatch method, of class ExceptionAssertExtensions.
      */
     @Test
-    @Ignore
-    public void testAssertThrowsAndDoAssertsInCatch_2_arg() {
-        System.out.println("assertThrowsAndDoAssertsInCatch");
-        fail("The test case is a prototype.");
+    public void testAssertThrowsAndDoAssertsInCatch_2args() throws Exception {
+        System.out.println("assertThrowsAndDoAssertsInCatch 2 arguments");
+        new AssertExtenstionsTestTemplate(){
+            @Override
+            void assertThatIsExpectedToPass() throws Exception {
+                assertThrowsAndDoAssertsInCatch(NumberFormatException.class, new ExceptionAssertionsPerformer(){
+                    @Override
+                    public void performThrowingAction() {
+                        Double.parseDouble("a");
+                    }
+                    @Override
+                    public void performAssertionsAfterCatch(Object th) throws Exception {
+                        // if this metod is called, we know that the object is a NumberFormatException or assignable from NumberFormatException
+                        NumberFormatException nfe = (NumberFormatException) th;
+                        assertEquals(nfe.getMessage(), "For input string: \"a\"");
+                    }
+                });
+            }
+            @Override
+            void assertThatIsExpectedToFailOnWrongException() throws Exception {
+                assertThrowsAndDoAssertsInCatch(ArithmeticException.class, new ExceptionAssertionsPerformer(){
+                    @Override
+                    public void performThrowingAction() {
+                        Double.parseDouble("a");
+                    }
+                    @Override
+                    public void performAssertionsAfterCatch(Object th) throws Exception {
+                        fail("should not get here");
+                    }
+                });
+            }
+            @Override
+            void assertThatIsExpectedToFailOnMissingException() throws Exception {
+                assertThrowsAndDoAssertsInCatch(ArithmeticException.class, new ExceptionAssertionsPerformer(){
+                    @Override
+                    public void performThrowingAction() {
+                        Double.parseDouble("1.0");
+                    }
+                    @Override
+                    public void performAssertionsAfterCatch(Object th) throws Exception {
+                        fail("should not get here");
+                    }
+                });
+            }
+            @Override
+            void assertThatIsExpectedToFailOnWrongExceptionMessage() throws Exception {
+                assertThrowsAndDoAssertsInCatch(NumberFormatException.class, new ExceptionAssertionsPerformer(){
+                    @Override
+                    public void performThrowingAction() {
+                        Double.parseDouble("a");
+                    }
+                    @Override
+                    public void performAssertionsAfterCatch(Object th) throws Exception {
+                        // if this metod is called, we know that the object is a NumberFormatException or assignable from NumberFormatException
+                        NumberFormatException nfe = (NumberFormatException) th;
+                        assertEquals(nfe.getMessage(), "wrong message");
+                    }
+                });
+            }
+        }.test();
     }
 
     /**
-     * Test of asserThrowsAndDoAssertsInCatch method, of class ExceptionAssertExtensions.
+     * Test of assertThrowsAndDoAssertsInCatch method, of class ExceptionAssertExtensions.
      */
     @Test
-    @Ignore
-    public void testAssertThrowsAndDoAssertsInCatch_3_arg() {
-        System.out.println("assertThrowsAndDoAssertsInCatch");
-        fail("The test case is a prototype.");
+    public void testAssertThrowsAndDoAssertsInCatch_3args() throws Exception {
+        System.out.println("assertThrowsAndDoAssertsInCatch 3 arguments");
+        new AssertExtenstionsTestTemplate(){
+            @Override
+            void assertThatIsExpectedToPass() throws Exception {
+                assertThrowsAndDoAssertsInCatch(NumberFormatException.class, new ExceptionAssertionsPerformer(){
+                    @Override
+                    public void performThrowingAction() {
+                        Double.parseDouble("a");
+                    }
+                    @Override
+                    public void performAssertionsAfterCatch(Object th) throws Exception {
+                        // if this metod is called, we know that the object is a NumberFormatException or assignable from NumberFormatException
+                        NumberFormatException nfe = (NumberFormatException) th;
+                        assertEquals(nfe.getMessage(), "For input string: \"a\"");
+                    }
+                }, "custom message");
+            }
+            @Override
+            void assertThatIsExpectedToFailOnWrongException() throws Exception {
+                assertThrowsAndDoAssertsInCatch(ArithmeticException.class, new ExceptionAssertionsPerformer(){
+                    @Override
+                    public void performThrowingAction() {
+                        Double.parseDouble("a");
+                    }
+                    @Override
+                    public void performAssertionsAfterCatch(Object th) throws Exception {
+                        fail("should not get here");
+                    }
+                }, "custom message");
+            }
+            @Override
+            void assertThatIsExpectedToFailOnMissingException() throws Exception {
+                assertThrowsAndDoAssertsInCatch(ArithmeticException.class, new ExceptionAssertionsPerformer(){
+                    @Override
+                    public void performThrowingAction() {
+                        Double.parseDouble("1.0");
+                    }
+                    @Override
+                    public void performAssertionsAfterCatch(Object th) throws Exception {
+                        fail("should not get here");
+                    }
+                }, "custom message");
+            }
+            @Override
+            void assertThatIsExpectedToFailOnWrongExceptionMessage() throws Exception {
+                assertThrowsAndDoAssertsInCatch(NumberFormatException.class, new ExceptionAssertionsPerformer(){
+                    @Override
+                    public void performThrowingAction() {
+                        Double.parseDouble("a");
+                    }
+                    @Override
+                    public void performAssertionsAfterCatch(Object th) throws Exception {
+                        // if this metod is called, we know that the object is a NumberFormatException or assignable from NumberFormatException
+                        NumberFormatException nfe = (NumberFormatException) th;
+                        assertEquals(nfe.getMessage(), "wrong message");
+                    }
+                }, "custom message");
+            }
+        }.test();
     }
 
     /**
@@ -258,23 +382,11 @@ public class ExceptionAssertExtensionsTest {
             void assertThatIsExpectedToFailOnMissingException() throws Exception {
                 assertThrows("For input string: \"a\"", NumberFormatException.class, new Double(0), "parseDouble", "1");
             }
+            @Override
+            void assertThatIsExpectedToFailOnWrongExceptionMessage() throws Exception {
+                assertThrows("a message", NumberFormatException.class, new Double(0), "parseDouble", "a");
+            }
         }.test();
-
-        // will fail because exception message is wrong
-        try
-        {
-            assertThrows("a message", NumberFormatException.class, new Double(0), "parseDouble", "a");
-            throw new NoSuchMethodException("Did not throw");
-        }
-        catch (AssertionError e)
-        {
-            System.out.println("\tExpected Exception: " + e.getMessage());
-            pass();
-        }
-        catch (Exception e2)
-        {
-            fail("Wrong exception thrown:" + e2.getMessage());
-        }
     }
 
     /**
@@ -301,7 +413,10 @@ public class ExceptionAssertExtensionsTest {
             }
         }.test();
 
-        // will fail because exception is not thrown
+        // will fail because exception is not thrown with a different class than above
+        // Double.class.getConstructor(double.class)
+        // versus
+        // Double.class.getConstructor(String.class)
         try
         {
             assertConstuctorThrows(NumberFormatException.class, Double.class.getConstructor(String.class), "1.0");
