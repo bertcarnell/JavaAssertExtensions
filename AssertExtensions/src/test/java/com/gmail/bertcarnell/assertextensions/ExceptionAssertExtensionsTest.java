@@ -118,19 +118,90 @@ public class ExceptionAssertExtensionsTest {
      * Test of assertThrows method, of class ExceptionAssertExtensions.
      */
     @Test
-    @Ignore
-    public void testAssertThrows_Class_Runnable() {
+    public void testAssertThrows_Class_Runnable() throws Exception {
         System.out.println("assertThrows");
-        fail("The test case is a prototype.");
+        assertThrows(NumberFormatException.class, new Runnable(){
+            @Override
+            public void run() {
+                throw new NumberFormatException("Test Exception");
+            }
+        });
+        System.out.println("assertThrows");
+        new AssertExtenstionsTestTemplate(){
+            @Override
+            void assertThatIsExpectedToPass() throws Exception {
+                assertThrows(NumberFormatException.class, new Runnable(){
+                    @Override
+                    public void run() {
+                        Double.parseDouble("a");
+                    }
+                });
+            }
+            @Override
+            void assertThatIsExpectedToFailOnWrongException() throws Exception {
+                assertThrows(ArithmeticException.class, new Runnable(){
+                    @Override
+                    public void run() {
+                        Double.parseDouble("a");
+                    }
+                });
+            }
+            @Override
+            void assertThatIsExpectedToFailOnMissingException() throws Exception {
+                assertThrows(NumberFormatException.class, new Runnable(){
+                    @Override
+                    public void run() {
+                        Double.parseDouble("1.0");
+                    }
+                });
+            }
+        }.test();
     }
 
     /**
      * Test of assertThrows method, of class ExceptionAssertExtensions.
      */
     @Test
-    @Ignore
-    public void testAssertThrows_3args() {
+    public void testAssertThrows_3args() throws Exception {
         System.out.println("assertThrows");
+        new AssertExtenstionsTestTemplate(){
+            @Override
+            void assertThatIsExpectedToPass() throws Exception {
+                assertThrows(NumberFormatException.class, new Runnable(){
+                    @Override
+                    public void run() {
+                        Double.parseDouble("a");
+                    }
+                }, "Custom Message");
+            }
+            @Override
+            void assertThatIsExpectedToFailOnWrongException() throws Exception {
+                assertThrows(ArithmeticException.class, new Runnable(){
+                    @Override
+                    public void run() {
+                        Double.parseDouble("a");
+                    }
+                }, "Custom Message");
+            }
+            @Override
+            void assertThatIsExpectedToFailOnMissingException() throws Exception {
+                assertThrows(NumberFormatException.class, new Runnable(){
+                    @Override
+                    public void run() {
+                        Double.parseDouble("1.0");
+                    }
+                }, "Custom Message");
+            }
+        }.test();
+    }
+
+    /**
+     * Test of asserThrowsAndDoAssertsInCatch method, of class ExceptionAssertExtensions.
+     */
+    @Test
+    @Ignore
+    public void testAssertThrowsAndDoAssertsInCatch_2_arg() {
+        System.out.println("assertThrowsAndDoAssertsInCatch");
         fail("The test case is a prototype.");
     }
 
@@ -139,34 +210,7 @@ public class ExceptionAssertExtensionsTest {
      */
     @Test
     @Ignore
-    public void testAsserThrowsAndDoAssertsInCatch() {
-        System.out.println("asserThrowsAndDoAssertsInCatch");
-        fail("The test case is a prototype.");
-    }
-
-    /**
-     * Test of assertSetsEqualsAsLists method, of class ExceptionAssertExtensions.
-     */
-    @Test
-    public void testAssertSetsEqualsAsLists() {
-        System.out.println("assertSetsEqualsAsLists");
-        int setSize = 5;
-        Set<Double> expected = new HashSet<>(setSize);
-        Set<Double> actual = new HashSet<>(setSize);
-        for (int i = 0; i < setSize; i++)
-        {
-            expected.add(Double.valueOf((double) i));
-            actual.add(Double.valueOf((double) i));
-        }
-        assertSetsEqualsAsLists(expected, actual);
-    }
-
-    /**
-     * Test of assertThrowsAndDoAssertsInCatch method, of class ExceptionAssertExtensions.
-     */
-    @Test
-    @Ignore
-    public void testAssertThrowsAndDoAssertsInCatch() {
+    public void testAssertThrowsAndDoAssertsInCatch_3_arg() {
         System.out.println("assertThrowsAndDoAssertsInCatch");
         fail("The test case is a prototype.");
     }

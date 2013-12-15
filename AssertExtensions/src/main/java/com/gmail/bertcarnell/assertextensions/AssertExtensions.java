@@ -21,6 +21,9 @@
  */
 package com.gmail.bertcarnell.assertextensions;
 
+import java.util.ArrayList;
+import java.util.Set;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -41,4 +44,9 @@ public class AssertExtensions {
     public static void pass() {
         assertTrue(true);
     }
+    
+    public static void assertSetsEqualsAsLists(Set<?> expected, Set<?> actual) {
+        assertEquals(new ArrayList<Object>(expected), new ArrayList<Object>(actual));
+    }
+    
 }

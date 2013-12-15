@@ -27,6 +27,8 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import static com.gmail.bertcarnell.assertextensions.AssertExtensions.*;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @author Rob Carnell (carnellr@battelle.org)
@@ -60,5 +62,22 @@ public class AssertExtensionsTest {
     public void testPass() {
         System.out.println("pass");
         pass();
+    }
+    
+    /**
+     * Test of assertSetsEqualsAsLists method, of class ExceptionAssertExtensions.
+     */
+    @Test
+    public void testAssertSetsEqualsAsLists() {
+        System.out.println("assertSetsEqualsAsLists");
+        int setSize = 5;
+        Set<Double> expected = new HashSet<>(setSize);
+        Set<Double> actual = new HashSet<>(setSize);
+        for (int i = 0; i < setSize; i++)
+        {
+            expected.add(Double.valueOf((double) i));
+            actual.add(Double.valueOf((double) i));
+        }
+        assertSetsEqualsAsLists(expected, actual);
     }
 }

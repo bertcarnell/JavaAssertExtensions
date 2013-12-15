@@ -73,6 +73,7 @@ public class ExceptionAssertExtensions {
      * Similar to the other assertThrows methods. Allows us to pass a custom fail message in case the assertion doesn't pass.
      *
      * @param excType
+     *            The Class corresponding to the expected exception.
      * @param throwerClosure
      * @param customFailMessage
      */
@@ -94,20 +95,18 @@ public class ExceptionAssertExtensions {
     /**
      * Checks if the given exception type is thrown and perform the given assertions in that exception object.
      * @param excType
+     *            The Class corresponding to the expected exception.
      * @param excAssertsPerformer
      */
-    public static <T extends Throwable> void asserThrowsAndDoAssertsInCatch(Class<T> excType,
+    public static <T extends Throwable> void assertThrowsAndDoAssertsInCatch(Class<T> excType,
             ExceptionAssertionsPerformer<T> excAssertsPerformer) {
         assertThrowsAndDoAssertsInCatch(excType, excAssertsPerformer, null);
-    }
-
-    public static void assertSetsEqualsAsLists(Set<?> expected, Set<?> actual) {
-        assertEquals(new ArrayList<Object>(expected), new ArrayList<Object>(actual));
     }
 
     /**
      * Similar to the method with the same name. Allows us to customize the error message.
      * @param excType
+     *            The Class corresponding to the expected exception.
      * @param excAssertsPerformer
      * @param customFailMessage
      */
