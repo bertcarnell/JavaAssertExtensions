@@ -30,6 +30,7 @@ import static org.junit.Assert.assertTrue;
  * Adds additional Assert methods to the JUnit implementation
  * 
  * @author Robert Carnell (bertcarnell@gmail.com)
+ * @author Mariano Navas
  */
 public class AssertExtensions {
     /**
@@ -45,6 +46,11 @@ public class AssertExtensions {
         assertTrue(true);
     }
     
+    /**
+     * Cast a set to an array list of objects and test equality
+     * @param expected
+     * @param actual 
+     */
     public static void assertSetsEqualsAsLists(Set<?> expected, Set<?> actual) {
         assertEquals(new ArrayList<Object>(expected), new ArrayList<Object>(actual));
     }

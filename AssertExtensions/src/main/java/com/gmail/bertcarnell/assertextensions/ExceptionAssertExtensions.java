@@ -25,11 +25,8 @@ import static com.gmail.bertcarnell.assertextensions.AssertExtensions.pass;
 import java.beans.Statement;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Set;
 import javax.validation.constraints.NotNull;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 /**
@@ -65,7 +62,8 @@ public class ExceptionAssertExtensions {
      * @param throwerClosure
      *            Closure like object that represents the code expected to throw an exception.
      */
-    public static <T extends Throwable> void assertThrows(Class<T> excType, final Runnable throwerClosure) {
+    public static <T extends Throwable> void assertThrows(@NotNull Class<T> excType, 
+            @NotNull final Runnable throwerClosure) {
         assertThrows(excType, throwerClosure, null);
     }
 
@@ -75,9 +73,12 @@ public class ExceptionAssertExtensions {
      * @param excType
      *            The Class corresponding to the expected exception.
      * @param throwerClosure
+     *            Closure like object that represents the code expected to throw an exception.
      * @param customFailMessage
+     *            Message to throw if the wrong exception is thrown
      */
-    public static <T extends Throwable> void assertThrows(Class<T> excType, final Runnable throwerClosure, String customFailMessage) {
+    public static <T extends Throwable> void assertThrows(Class<T> excType, 
+            final Runnable throwerClosure, String customFailMessage) {
         ExceptionAssertionsPerformer<T> excAssertsPerformer = new ExceptionAssertionsPerformer<T>() {
             @Override
             public void performThrowingAction() {
@@ -97,6 +98,8 @@ public class ExceptionAssertExtensions {
      * @param excType
      *            The Class corresponding to the expected exception.
      * @param excAssertsPerformer
+     *            An object that provides methods to perform that will throw and
+     *            methods to perform after the catch.
      */
     public static <T extends Throwable> void assertThrowsAndDoAssertsInCatch(Class<T> excType,
             ExceptionAssertionsPerformer<T> excAssertsPerformer) {
@@ -108,7 +111,10 @@ public class ExceptionAssertExtensions {
      * @param excType
      *            The Class corresponding to the expected exception.
      * @param excAssertsPerformer
+     *            An object that provides methods to perform that will throw and
+     *            methods to perform after the catch.
      * @param customFailMessage
+     *            Message to throw if the wrong exception is thrown
      */
     @SuppressWarnings("unchecked")
     public static <T extends Throwable> void assertThrowsAndDoAssertsInCatch(Class<T> excType,
@@ -127,9 +133,79 @@ public class ExceptionAssertExtensions {
             }
         }
     }
+    
+    /**
+     * 
+     * @param <T> A class that extends Throwable
+     * @param excType
+     * @param excMessage
+     * @param throwerClosure 
+     */
+    public static <T extends Throwable> void assertThrows(@NotNull String excMessage,
+            @NotNull Class<T> excType, @NotNull final Runnable throwerClosure)
+    {
+        assertThrows(excMessage, excType, throwerClosure, null);
+    }
+    
+    /**
+     * 
+     * @param <T>
+     * @param excType
+     * @param excMessage
+     * @param throwerClosure
+     * @param customFailMessage 
+     */
+    public static <T extends Throwable> void assertThrows(@NotNull String excMessage,
+            @NotNull Class<T> excType, @NotNull final Runnable throwerClosure,
+            String customFailMessage)
+    {
+        ExceptionAssertionsPerformer<T> eap = new ExceptionAssertionsPerformer<T>() 
+        {
+            @Override
+            public void performThrowingAction() {
+                throwerClosure.run();
+            }
 
-    private static String createExpectedExceptionMessage(Class<? extends Throwable> excType, Class<? extends Throwable> actualType,
-            String customFailMessage) {
+            @Override
+            public void performAssertionsAfterCatch(T th) throws Exception {
+                // do nothing
+            }
+        };
+        assertThrowsSpecificException(excMessage, excType, eap, customFailMessage);
+    }
+    
+    public static <T extends Throwable> void assertThrowsSpecificException(String excMessage,
+            @NotNull Class<T> excType, @NotNull ExceptionAssertionsPerformer<T> excAssertsPerformer,
+            String customFailMessage)
+    {
+        try 
+        {
+            excAssertsPerformer.performThrowingAction();
+            fail(createExpectedExceptionMessage(excType, null, customFailMessage));
+        } 
+        catch (Throwable th) 
+        {
+            if (!excType.getName().equals(th.getClass().getName()) ||
+                    !th.getMessage().equals(excMessage))
+            {
+                String msg = String.format("Expected %s with message %s, but was %s with message %s", 
+                        excType.getName(), excMessage, th.getClass().getName(),
+                        th.getMessage());
+                fail(msg);
+            }
+            try 
+            {
+                excAssertsPerformer.performAssertionsAfterCatch((T) th);
+            } 
+            catch (Exception e) 
+            {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    private static String createExpectedExceptionMessage(Class<? extends Throwable> excType, 
+            Class<? extends Throwable> actualType, String customFailMessage) {
         String suffix;
         if (actualType != null) {
             suffix = String.format(", but was %s", actualType.getName());
