@@ -23,6 +23,7 @@ package com.gmail.bertcarnell.assertextensions;
 
 import static com.gmail.bertcarnell.assertextensions.AssertExtensions.pass;
 import static com.gmail.bertcarnell.assertextensions.ExceptionAssertExtensions.*;
+import java.io.IOException;
 import java.lang.reflect.Constructor;
 import javax.validation.constraints.NotNull;
 import org.junit.After;
@@ -171,6 +172,37 @@ public class ExceptionAssertExtensionsTest {
             @Override
             void assertThatIsExpectedToFailOnMissingException() throws Exception {
                 assertThrows(NumberFormatException.class, new Runnable(){
+                    @Override
+                    public void run() {
+                        Double.parseDouble("1.0");
+                    }
+                });
+            }
+        }.test();
+
+        // repeat tests with a more generic exception
+        new AssertExtenstionsTestTemplate(){
+            @Override
+            void assertThatIsExpectedToPass() throws Exception {
+                assertThrows(Exception.class,  new Runnable() {
+                    @Override
+                    public void run() {
+                        Double.parseDouble("a");
+                    }
+                });
+            }
+            @Override
+            void assertThatIsExpectedToFailOnWrongException() throws Exception {
+                assertThrows(IOException.class, new Runnable() {
+                    @Override
+                    public void run() {
+                        Double.parseDouble("a");
+                    }
+                });
+            }
+            @Override
+            void assertThatIsExpectedToFailOnMissingException() throws Exception {
+                assertThrows(Exception.class,  new Runnable() {
                     @Override
                     public void run() {
                         Double.parseDouble("1.0");
