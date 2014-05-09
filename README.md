@@ -3,6 +3,8 @@ JavaAssertExtensions
 
 Adds additional Assert methods to the JUnit implementation
 
+[![Build Status](https://drone.io/github.com/bertcarnell/JavaAssertExtensions/status.png)](https://drone.io/github.com/bertcarnell/JavaAssertExtensions/latest)
+
 ### Deploy to github.com - bertcarnellMavenMicroRepo
 
 This project deploys artifacts to a local git clone which is pushed to github.com for use as a remote repo
