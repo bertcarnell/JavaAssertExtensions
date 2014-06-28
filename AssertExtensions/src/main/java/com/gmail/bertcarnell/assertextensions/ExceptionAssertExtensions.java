@@ -46,100 +46,107 @@ import static org.junit.Assert.fail;
  * @author Dave Rigsby
  * @author Mariano Navas
  */
-public class ExceptionAssertExtensions {
+public class ExceptionAssertExtensions
+{
     /**
      * Prevent instantiation of this class.
      */
-    private ExceptionAssertExtensions() {
-    }
+    private ExceptionAssertExtensions() {}
 
     /**
      * Checks that the logic wrapped by the given Runnable throw an exception of the specified type (only valid for
      * RuntimeExceptions given that the run method of the Runnable interface exposes no throws signature).
      *
-     * @param excType
-     *            The Class corresponding to the expected exception.
-     * @param throwerClosure
-     *            Closure like object that represents the code expected to throw an exception.
+     * @param excType The Class corresponding to the expected exception.
+     * @param throwerClosure Closure-like object that represents the code expected to throw an exception.
      */
     public static <T extends Throwable> void assertThrows(@NotNull Class<T> excType, 
-            @NotNull final Runnable throwerClosure) {
+            @NotNull final Runnable throwerClosure)
+    {
         assertThrows(excType, throwerClosure, null);
     }
 
     /**
-     * Similar to the other assertThrows methods. Allows us to pass a custom fail message in case the assertion doesn't pass.
+     * Similar to the other assertThrows methods. Allows the user to pass a custom fail message in case the assertion doesn't pass.
      *
-     * @param excType
-     *            The Class corresponding to the expected exception.
-     * @param throwerClosure
-     *            Closure like object that represents the code expected to throw an exception.
-     * @param customFailMessage
-     *            Message to throw if the wrong exception is thrown
+     * @param excType The Class corresponding to the expected exception.
+     * @param throwerClosure Closure-like object that represents the code expected to throw an exception.
+     * @param customFailMessage Message to throw if the wrong exception is thrown
      */
     public static <T extends Throwable> void assertThrows(Class<T> excType, 
-            final Runnable throwerClosure, String customFailMessage) {
-        ExceptionAssertionsPerformer<T> excAssertsPerformer = new ExceptionAssertionsPerformer<T>() {
+            final Runnable throwerClosure, String customFailMessage)
+    {
+        ExceptionAssertionsPerformer<T> excAssertsPerformer = new ExceptionAssertionsPerformer<T>()
+        {
             @Override
-            public void performThrowingAction() {
+            public void performThrowingAction()
+            {
                 throwerClosure.run();
             }
 
             @Override
-            public void performAssertionsAfterCatch(T th) {
-                // Do nothing
-            }
+            public void performAssertionsAfterCatch(T th) {}
         };
         assertThrowsAndDoAssertsInCatch(excType, excAssertsPerformer, customFailMessage);
     }
 
     /**
      * Checks if the given exception type is thrown and perform the given assertions in that exception object.
-     * @param excType
-     *            The Class corresponding to the expected exception.
-     * @param excAssertsPerformer
-     *            An object that provides methods to perform that will throw and
-     *            methods to perform after the catch.
+     * @param excType The Class corresponding to the expected exception.
+     * @param excAssertsPerformer An object that provides methods to perform that will throw and methods to perform
+     *                            after the catch.
      */
     public static <T extends Throwable> void assertThrowsAndDoAssertsInCatch(Class<T> excType,
-            ExceptionAssertionsPerformer<T> excAssertsPerformer) {
+            ExceptionAssertionsPerformer<T> excAssertsPerformer)
+    {
         assertThrowsAndDoAssertsInCatch(excType, excAssertsPerformer, null);
     }
 
     /**
      * Similar to the method with the same name. Allows us to customize the error message.
-     * @param excType
-     *            The Class corresponding to the expected exception.
-     * @param excAssertsPerformer
-     *            An object that provides methods to perform that will throw and
-     *            methods to perform after the catch.
-     * @param customFailMessage
-     *            Message to throw if the wrong exception is thrown
+     * @param excType The Class corresponding to the expected exception.
+     * @param excAssertsPerformer An object that provides methods to perform that will throw and methods to perform
+     *                            after the catch.
+     * @param customFailMessage Message to throw if the wrong exception is thrown
      */
     @SuppressWarnings("unchecked")
     public static <T extends Throwable> void assertThrowsAndDoAssertsInCatch(Class<T> excType,
-            ExceptionAssertionsPerformer<T> excAssertsPerformer, String customFailMessage) {
-        try {
+            ExceptionAssertionsPerformer<T> excAssertsPerformer, String customFailMessage)
+    {
+        try
+        {
+            // expect this method to throw
             excAssertsPerformer.performThrowingAction();
+            // if it doesn't throw, fail
             fail(createExpectedExceptionMessage(excType, null, customFailMessage));
-        } catch (Throwable th) {
-            if (!excType.isAssignableFrom(th.getClass())) {
+        }
+        // catch if the correct method threw an exception or the fail method threw
+        catch (Throwable th)
+        {
+            // if the expected exception is not assignable from the thrown exception, then something went wrong
+            if (!excType.isAssignableFrom(th.getClass()))
+            {
                 fail(createExpectedExceptionMessage(excType, th.getClass(), customFailMessage));
             }
-            try {
+            // otherwise, perform assertions
+            try
+            {
                 excAssertsPerformer.performAssertionsAfterCatch((T) th);
-            } catch (Exception e) {
+            }
+            catch (Exception e)
+            {
                 throw new RuntimeException(e);
             }
         }
     }
     
     /**
-     * 
+     * Assert that a method in a <code>Runnable</code> closure should throw when tested
+     *
      * @param <T> A class that extends Throwable
-     * @param excType
-     * @param excMessage
-     * @param throwerClosure 
+     * @param excMessage the expected message from the exception
+     * @param excType The Class corresponding to the expected exception.
+     * @param throwerClosure Closure-like object that represents the code expected to throw an exception.
      */
     public static <T extends Throwable> void assertThrows(@NotNull String excMessage,
             @NotNull Class<T> excType, @NotNull final Runnable throwerClosure)
@@ -148,12 +155,13 @@ public class ExceptionAssertExtensions {
     }
     
     /**
-     * 
-     * @param <T>
-     * @param excType
-     * @param excMessage
-     * @param throwerClosure
-     * @param customFailMessage 
+     * Assert that a method in a <code>Runnable</code> closure should throw when tested
+     *
+     * @param <T> A class that extends Throwable
+     * @param excMessage the expected message from the exception
+     * @param excType The Class corresponding to the expected exception.
+     * @param throwerClosure Closure-like object that represents the code expected to throw an exception.
+     * @param customFailMessage A message to be displayed on failure
      */
     public static <T extends Throwable> void assertThrows(@NotNull String excMessage,
             @NotNull Class<T> excType, @NotNull final Runnable throwerClosure,
@@ -173,7 +181,18 @@ public class ExceptionAssertExtensions {
         };
         assertThrowsSpecificException(excMessage, excType, eap, customFailMessage);
     }
-    
+
+    /**
+     * Assert that a method in a <code>Runnable</code> closure should throw when tested with a specific message
+     *
+     * @param excMessage the expected message from the exception
+     * @param excType The Class corresponding to the expected exception.
+     * @param excAssertsPerformer An object that provides methods to perform that will throw and methods to perform
+     *                            after the catch.
+     * @param customFailMessage A message to be displayed on failure
+     * @param <T> A class that extends Throwable
+     */
+    @SuppressWarnings("unchecked")
     public static <T extends Throwable> void assertThrowsSpecificException(String excMessage,
             @NotNull Class<T> excType, @NotNull ExceptionAssertionsPerformer<T> excAssertsPerformer,
             String customFailMessage)
@@ -204,16 +223,29 @@ public class ExceptionAssertExtensions {
         }
     }
 
+    /**
+     * private method to create exception messages
+     *
+     * @param excType The Class corresponding to the expected exception.
+     * @param actualType The Class corresponding to the actual exception
+     * @param customFailMessage a custom failure message
+     * @return the message
+     */
     private static String createExpectedExceptionMessage(Class<? extends Throwable> excType, 
-            Class<? extends Throwable> actualType, String customFailMessage) {
+            Class<? extends Throwable> actualType, String customFailMessage)
+    {
         String suffix;
-        if (actualType != null) {
+        if (actualType != null)
+        {
             suffix = String.format(", but was %s", actualType.getName());
-        } else {
+        }
+        else
+        {
             suffix = ", but no exception was thrown";
         }
         String result = String.format("Expected %s%s", excType.getName(), suffix);
-        if (customFailMessage != null) {
+        if (customFailMessage != null)
+        {
             result += "; " + customFailMessage;
         }
         return result;
@@ -239,30 +271,33 @@ public class ExceptionAssertExtensions {
      * </ul>
      * </ul>
      *
-     * @param expectedException
-     *            The class of the expected exception type
-     * @param target
-     *            the target object that the method will be called from
-     * @param methodName
-     *            the name of the method that is to be called
-     * @param arguments
-     *            the arguments to be passed to the method
+     * @param expectedException The class of the expected exception type
+     * @param target the target object that the method will be called from
+     * @param methodName the name of the method that is to be called
+     * @param arguments the arguments to be passed to the method
      */
     public static void assertThrows(@NotNull Class<? extends Throwable> expectedException, @NotNull Object target,
-            @NotNull String methodName, Object... arguments) {
-        // create a java.beans.statement which works like Method in refelction
+            @NotNull String methodName, Object... arguments)
+    {
+        // create a java.beans.statement which works like Method in reflection
         Statement oStatement = new Statement(target, methodName, arguments);
-        try {
+        try
+        {
             oStatement.execute(); // throws Exception
             // if Exception is not thrown
             fail(String.format("Method %s did not throw %s as expected", oStatement.getMethodName(), expectedException.toString()));
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             // the class of the Exception should match the expectedException
             Class<?> temp = e.getClass();
-            if (temp != expectedException) {
+            if (temp != expectedException)
+            {
                 fail(String.format("Method %s threw %s, but %s was expected", oStatement.getMethodName(), temp.toString(),
                         expectedException.toString()));
-            } else {
+            }
+            else
+            {
                 pass();
             }
         }
@@ -271,36 +306,39 @@ public class ExceptionAssertExtensions {
     /**
      * Unit test to assert that a specific type of exception with a specific message is thrown
      *
-     * @see assertThrows
-     * @param message
-     *            The expected message
-     * @param expectedException
-     *            The class of the expected exception type
-     * @param target
-     *            the target object that the method will be called from
-     * @param methodName
-     *            the name of the method that is to be called
-     * @param arguments
-     *            the arguments to be passed to the method
+     * @param message The expected message
+     * @param expectedException The class of the expected exception type
+     * @param target the target object that the method will be called from
+     * @param methodName the name of the method that is to be called
+     * @param arguments the arguments to be passed to the method
      */
     public static void assertThrows(@NotNull String message, @NotNull Class<? extends Throwable> expectedException, @NotNull Object target,
-            @NotNull String methodName, Object... arguments) {
-        // create a java.beans.statement which works like Method in refelction
+            @NotNull String methodName, Object... arguments)
+    {
+        // create a java.beans.statement which works like Method in reflection
         Statement oStatement = new Statement(target, methodName, arguments);
-        try {
+        try
+        {
             oStatement.execute(); // throws Exception
             // if Exception is not thrown
             fail(String.format("Method %s did not throw %s as expected", oStatement.getMethodName(), expectedException.toString()));
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             // the class of the Exception should match the expectedException
             Class<?> temp = e.getClass();
-            if (temp != expectedException) {
+            if (temp != expectedException)
+            {
                 fail(String.format("Method %s threw %s, but %s was expected", oStatement.getMethodName(), temp.toString(),
                         expectedException.toString()));
-            } else if (!e.getMessage().equals(message)) {
+            }
+            else if (!e.getMessage().equals(message))
+            {
                 fail(String.format("Method %s threw %s, but contained message %s when %s was expected", oStatement.getMethodName(),
                         temp.toString(), e.getMessage(), message));
-            } else {
+            }
+            else
+            {
                 pass();
             }
         }
@@ -311,27 +349,34 @@ public class ExceptionAssertExtensions {
      * <p>
      * <b>Warning:</b> This method cannot tell the difference between constructors when the only difference is a primitive type.
      * For example, it cannot tell the difference between A(double[], Object, double) and A(double[], Object, int)
+     * </p>
      *
-     * @param expectedException
-     *            The class of the expected exception type
-     * @param constr
-     *            the target constructor
-     * @param arguments
-     *            the arguments to be passed to the constructor
+     * @param expectedException The class of the expected exception type
+     * @param constr the target constructor
+     * @param arguments the arguments to be passed to the constructor
      */
     public static void assertConstuctorThrows(@NotNull Class<? extends Throwable> expectedException, @NotNull Constructor<?> constr,
-            Object... arguments) {
-        try {
+            Object... arguments)
+    {
+        try
+        {
             constr.newInstance(arguments);
-            fail(String.format("Constructor %s did not throw %s as expected", constr.getName()));
-        } catch (InstantiationException | InvocationTargetException e) {
-            if (e.getCause().getClass() != expectedException) {
+            fail(String.format("Constructor %s did not throw %s as expected", constr.getName(), expectedException.toString()));
+        }
+        catch (InstantiationException | InvocationTargetException e)
+        {
+            if (e.getCause().getClass() != expectedException)
+            {
                 fail(String.format("Constructor %s threw %s, but %s was expected", constr.getName(), e.getCause().toString(),
                         expectedException.toString()));
-            } else {
+            }
+            else
+            {
                 pass();
             }
-        } catch (IllegalAccessException | IllegalArgumentException e2) {
+        }
+        catch (IllegalAccessException | IllegalArgumentException e2)
+        {
             fail(String.format("Error in invoking constructor %s with arguments %s: %s", constr.getName(), Arrays.toString(arguments),
                     e2.getMessage()));
         }

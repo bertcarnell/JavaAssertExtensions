@@ -32,26 +32,28 @@ import static org.junit.Assert.assertTrue;
  * @author Robert Carnell (bertcarnell@gmail.com)
  * @author Mariano Navas
  */
-public class AssertExtensions {
+public class AssertExtensions
+{
     /**
      * Prevent instantiation of this class.
      */
-    private AssertExtensions() {
-    }
+    private AssertExtensions() {}
 
     /**
      * Extension shorthand for <code>assertTrue(true)</code> to mirror <code>fail()</code>
      */
-    public static void pass() {
+    public static void pass()
+    {
         assertTrue(true);
     }
     
     /**
      * Cast a set to an array list of objects and test equality
-     * @param expected
-     * @param actual 
+     * @param expected A <code>Set</code> of expected objects
+     * @param actual A <code>Set</code> of actual objects for comparison to expected
      */
-    public static void assertSetsEqualsAsLists(Set<?> expected, Set<?> actual) {
+    public static void assertSetsEqualsAsLists(Set<?> expected, Set<?> actual)
+    {
         assertEquals(new ArrayList<Object>(expected), new ArrayList<Object>(actual));
     }
     
