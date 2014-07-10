@@ -11,14 +11,15 @@ Adds additional Assert methods to the [JUnit](http://junit.org/) framework
 
 ```java
 import static com.gmail.bertcarnell.assertextensions.ExceptionAssertExtensions.*;
+import static com.gmail.bertcarnell.assertextensions.NumericAssertExtensions.*;
 ```
 
-- Start writing tests
+- Start writing tests using assertThrows
 
 ```java
-    // check that an exception is thrown using reflection
+    // check that an exception is thrown in Double.parseDouble("a") using reflection
     assertThrows(NumberFormatException.class, new Double(0), "parseDouble", "a");
-    // check that an exception is thrown from a constructor using reflection
+    // check that an exception is thrown from a constructor (Double("a")) using reflection
     assertConstuctorThrows(NumberFormatException.class, Double.class.getConstructor(String.class), "a");
     // check that an exception is thrown using a Runnable to enclose the method call
     assertThrows(NumberFormatException.class, new Runnable(){
@@ -41,8 +42,14 @@ import static com.gmail.bertcarnell.assertextensions.ExceptionAssertExtensions.*
           }
      });
 ```
+- Write tests using Log Relative Error
 
-- Check the tests for the package to see more examples of tests that pass when the correct <code>Exception</code> is thrown, tests that fail when the wrong <code>Exception</code> is thrown, and tests that fail when no <code>Exception</code> is thrown.
+```java
+     // assert that two numbers "agree within 7 digits"
+     assertEqualsLRE(1234.5678, 1234.5679, 7);
+```
+
+- Check the [JUnit](http://junit.org/) tests for the package to see more [examples](https://github.com/bertcarnell/JavaAssertExtensions/tree/master/AssertExtensions/src/test/java/com/gmail/bertcarnell/assertextensions) of tests that pass when the correct <code>Exception</code> is thrown, tests that fail when the wrong <code>Exception</code> is thrown, and tests that fail when no <code>Exception</code> is thrown.
 
 ### Deploy this project to the [bertcarnellMavenMicroRepo](https://github.com/bertcarnell/bertcarnellMavenMicroRepo)
 
