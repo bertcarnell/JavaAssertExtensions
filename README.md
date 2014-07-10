@@ -1,12 +1,12 @@
 JavaAssertExtensions
 ====================
 
-Adds additional Assert methods to the JUnit framework
+Adds additional Assert methods to the [JUnit](http://junit.org/) framework
 
 [![Build Status](https://drone.io/github.com/bertcarnell/JavaAssertExtensions/status.png)](https://drone.io/github.com/bertcarnell/JavaAssertExtensions/latest)
 
 ### Quick start guide for Maven Users
-- See https://github.com/bertcarnell/bertcarnellMavenMicroRepo for directions on how to include this project in your application or library as a dependency
+- See the [bertcarnellMavenMicroRepo](https://github.com/bertcarnell/bertcarnellMavenMicroRepo) for directions on how to include this project in your application or library as a dependency
 - Import the methods into your Class
 
 ```java
@@ -44,9 +44,9 @@ import static com.gmail.bertcarnell.assertextensions.ExceptionAssertExtensions.*
 
 - Check the tests for the package to see more examples of tests that pass when the correct <code>Exception</code> is thrown, tests that fail when the wrong <code>Exception</code> is thrown, and tests that fail when no <code>Exception</code> is thrown.
 
-### Deploy this project to github.com in the bertcarnellMavenMicroRepo
+### Deploy this project to the [bertcarnellMavenMicroRepo](https://github.com/bertcarnell/bertcarnellMavenMicroRepo)
 
-This project deploys artifacts to a local git clone which is pushed to github.com for use as a remote repo
+This project deploys artifacts to a local git clone which is pushed to [github.com](https://github.com) for use as a remote repo
 
 In the project's <code>pom.xml</code>:
 
@@ -71,7 +71,7 @@ In the project's <code>pom.xml</code>:
 </project>
 ```
 
-If you are using Netbeans, these actions can aid in the deployment.  In the <code>nbactions.xml</code> file:
+If you are using [Netbeans](https://netbeans.org/), these actions can aid in the deployment.  In the <code>nbactions.xml</code> file:
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
