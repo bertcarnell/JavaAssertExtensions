@@ -5,6 +5,39 @@ Adds additional Assert methods to the JUnit implementation
 
 [![Build Status](https://drone.io/github.com/bertcarnell/JavaAssertExtensions/status.png)](https://drone.io/github.com/bertcarnell/JavaAssertExtensions/latest)
 
+### Simple quick start guide for Maven Users
+- See https://github.com/bertcarnell/bertcarnellMavenMicroRepo for directions on how to include this dependency in your project
+- Import the class into your test.java
+
+```java
+import static com.gmail.bertcarnell.assertextensions.ExceptionAssertExtensions.*;
+```
+
+- Start writing tests
+
+```java
+    assertThrows(NumberFormatException.class, new Double(0), "parseDouble", "a");
+    assertConstuctorThrows(NumberFormatException.class, Double.class.getConstructor(String.class), "a");
+    assertThrows(NumberFormatException.class, new Runnable(){
+        @Override
+        public void run() {
+            Double.parseDouble("a");
+        }
+    });
+    assertThrowsAndDoAssertsInCatch(NumberFormatException.class, new ExceptionAssertionsPerformer(){
+          @Override
+          public void performThrowingAction() {
+              Double.parseDouble("a");
+          }
+          @Override
+          public void performAssertionsAfterCatch(Object th) throws Exception {
+              // if this metod is called, we know that the object is a NumberFormatException or assignable from NumberFormatException
+              NumberFormatException nfe = (NumberFormatException) th;
+              assertEquals(nfe.getMessage(), "For input string: \"a\"");
+          }
+      });
+```
+
 ### Deploy to github.com - bertcarnellMavenMicroRepo
 
 This project deploys artifacts to a local git clone which is pushed to github.com for use as a remote repo
