@@ -1,13 +1,13 @@
 JavaAssertExtensions
 ====================
 
-Adds additional Assert methods to the JUnit implementation
+Adds additional Assert methods to the JUnit framework
 
 [![Build Status](https://drone.io/github.com/bertcarnell/JavaAssertExtensions/status.png)](https://drone.io/github.com/bertcarnell/JavaAssertExtensions/latest)
 
-### Simple quick start guide for Maven Users
-- See https://github.com/bertcarnell/bertcarnellMavenMicroRepo for directions on how to include this dependency in your project
-- Import the class into your test.java
+### Quick start guide for Maven Users
+- See https://github.com/bertcarnell/bertcarnellMavenMicroRepo for directions on how to include this project in your application or library as a dependency
+- Import the methods into your Class
 
 ```java
 import static com.gmail.bertcarnell.assertextensions.ExceptionAssertExtensions.*;
@@ -16,14 +16,18 @@ import static com.gmail.bertcarnell.assertextensions.ExceptionAssertExtensions.*
 - Start writing tests
 
 ```java
+    // check that an exception is thrown using reflection
     assertThrows(NumberFormatException.class, new Double(0), "parseDouble", "a");
+    // check that an exception is thrown from a constructor using reflection
     assertConstuctorThrows(NumberFormatException.class, Double.class.getConstructor(String.class), "a");
+    // check that an exception is thrown using a Runnable to enclose the method call
     assertThrows(NumberFormatException.class, new Runnable(){
         @Override
         public void run() {
             Double.parseDouble("a");
         }
     });
+    // check that an exception is thrown using a closure that allows for additional checks in the Catch
     assertThrowsAndDoAssertsInCatch(NumberFormatException.class, new ExceptionAssertionsPerformer(){
           @Override
           public void performThrowingAction() {
@@ -35,14 +39,16 @@ import static com.gmail.bertcarnell.assertextensions.ExceptionAssertExtensions.*
               NumberFormatException nfe = (NumberFormatException) th;
               assertEquals(nfe.getMessage(), "For input string: \"a\"");
           }
-      });
+     });
 ```
 
-### Deploy to github.com - bertcarnellMavenMicroRepo
+- Check the tests for the package to see more examples of tests that pass when the correct <code>Exception</code> is thrown, tests that fail when the wrong <code>Exception</code> is thrown, and tests that fail when no <code>Exception</code> is thrown.
+
+### Deploy this project to github.com in the bertcarnellMavenMicroRepo
 
 This project deploys artifacts to a local git clone which is pushed to github.com for use as a remote repo
 
-In the project's pom.xml:
+In the project's <code>pom.xml</code>:
 
 ```xml
 <project>
@@ -65,7 +71,7 @@ In the project's pom.xml:
 </project>
 ```
 
-If you are using netbeans, these actions can aid in the deployment.  In the nbactions.xml file:
+If you are using Netbeans, these actions can aid in the deployment.  In the <code>nbactions.xml</code> file:
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
