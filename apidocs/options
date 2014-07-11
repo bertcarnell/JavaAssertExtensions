@@ -1,0 +1,24 @@
+-classpath
+'C:/Users/carnellr/Documents/Repositories/JavaAssertExtensions/AssertExtensions/target/classes;C:/Users/carnellr/.m2/repository/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar;C:/Users/carnellr/.m2/repository/javax/validation/validation-api/1.1.0.Final/validation-api-1.1.0.Final.jar;C:/Users/carnellr/.m2/repository/junit/junit/4.11/junit-4.11.jar'
+-encoding
+'UTF-8'
+-protected
+-sourcepath
+'C:/Users/carnellr/Documents/Repositories/JavaAssertExtensions/AssertExtensions/src/main/java'
+-author
+-bottom
+'Copyright &#169; 2014. All rights reserved.'
+-charset
+'UTF-8'
+-d
+'C:/Users/carnellr/Documents/Repositories/JavaAssertExtensions/AssertExtensions/target/site/apidocs'
+-docencoding
+'UTF-8'
+-doctitle
+'AssertExtensions 2.0.0 API'
+-linkoffline
+'http://docs.oracle.com/javase/7/docs/api' 'C:/Users/carnellr/Documents/Repositories/JavaAssertExtensions/AssertExtensions/target/javadoc-bundle-options'
+-use
+-version
+-windowtitle
+'AssertExtensions 2.0.0 API'
