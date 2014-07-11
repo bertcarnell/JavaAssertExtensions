@@ -3,6 +3,8 @@ JavaAssertExtensions
 
 Adds additional Assert methods to the [JUnit](http://junit.org/) framework
 
+Please see the document contained [here]( http://bertcarnell.github.io/JavaAssertExtensions)
+
 [![Build Status](https://drone.io/github.com/bertcarnell/JavaAssertExtensions/status.png)](https://drone.io/github.com/bertcarnell/JavaAssertExtensions/latest)
 
 ### Quick start guide for Maven Users
