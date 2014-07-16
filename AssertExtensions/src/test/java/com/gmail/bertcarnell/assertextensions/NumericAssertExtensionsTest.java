@@ -56,6 +56,7 @@ public class NumericAssertExtensionsTest {
     public void tearDown() {
     }
 
+    @SuppressWarnings({"BroadCatchBlock", "TooBroadCatch"})
     private void assertEqualsLREWillFail(double expected, double actual, int lre)
     {
         try
@@ -78,6 +79,7 @@ public class NumericAssertExtensionsTest {
         assertEqualsLREWillFail(expected, actual, lre);
     }
 
+    @SuppressWarnings({"BroadCatchBlock", "TooBroadCatch"})
     private void assertEqualsLREWillFail(BigDecimal expected, BigDecimal actual, int lre)
     {
         try

@@ -23,29 +23,17 @@
 package com.gmail.bertcarnell.assertextensions;
 
 /**
- * Interface to wrap the required logic to:
- * <ul>
- * <li>Execute the statement/s that is/are expected to throw an exception (method performThrowingAction()).</li>
- * <li>Do the corresponding assertions on the exception thrown (method performAssertionsAfterCatch(T)).</li>
- * </ul>
- * We pass this functions into the corresponding static methods in the <code>AssertExtensions</code> class.
- * @author Mariano Navas
+ * Exception Runnable is an interface similar to Runnable that allows for the run()
+ * method to throw a <code>Throwable</code>.  If Runnable is used to call a a method that throws
+ * then it would normally need to be surrounded with a <code>try-catch</code> which defeats the purpose
+ * of this testing library.
+ * 
  * @author Rob Carnell
- *
- * @param <T> T is a class that extends <code>Throwable</code>
  */
-public interface ExceptionAssertionsPerformer<T> {
+public interface ExceptionRunnable {
     /**
-     * Method that is expected to throw an exception of type <code>T</code> or assignable from type <code>T</code>
-     * @throws java.lang.Throwable
+     * A method that can execute any series of commands and may throw a <code>Throwable</code>
+     * @throws Throwable 
      */
-    void performThrowingAction() throws Throwable;
-
-    /**
-     * Method used to perform assertions after <code>performThrowingAction</code> has
-     * thrown and been caught
-     * @param th typically an exception that extends <code>Throwable</code>
-     * @throws Exception 
-     */
-    void performAssertionsAfterCatch(T th) throws Exception;
+    public void run() throws Throwable;
 }

@@ -24,8 +24,6 @@ package com.gmail.bertcarnell.assertextensions;
 import static com.gmail.bertcarnell.assertextensions.AssertExtensions.pass;
 import static com.gmail.bertcarnell.assertextensions.ExceptionAssertExtensions.*;
 import java.io.IOException;
-import java.lang.reflect.Constructor;
-import javax.validation.constraints.NotNull;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -118,6 +116,14 @@ public class ExceptionAssertExtensionsTest {
         void assertThatIsExpectedToFailOnWrongExceptionMessage() throws Exception {fail("prototype");};
     }
     
+    public class TestThrowClass
+    {
+        public void throwMethod() throws Exception
+        {
+            throw new Exception("Test Exception");
+        }
+    }
+    
     @BeforeClass
     public static void setUpClass() {
     }
@@ -140,20 +146,40 @@ public class ExceptionAssertExtensionsTest {
      * <li>Exception</li>
      * <li>Runnable that throws</li>
      * </ul>
+     * @throws java.lang.Exception
      */
     @Test
     public void testAssertThrows_Exception_Runnable() throws Exception {
         System.out.println("testAssertThrows_Exception_Runnable");
-        assertThrows(NumberFormatException.class, new Runnable(){
+        assertThrows(NumberFormatException.class, new ExceptionRunnable(){
             @Override
-            public void run() {
+            public void run() throws Throwable {
                 throw new NumberFormatException("Test Exception");
             }
+        });
+        assertThrows(Exception.class, new ExceptionRunnable(){
+            @Override
+            public void run() throws Throwable {
+                TestThrowClass ttc = new TestThrowClass();
+                ttc.throwMethod();
+            }
+        });
+        assertThrowsAndDoAssertsInCatch(Exception.class, new ExceptionAssertionsPerformer(){
+            @Override
+            public void performThrowingAction() throws Throwable {
+                TestThrowClass ttc = new TestThrowClass();
+                ttc.throwMethod();
+            }
+
+            @Override
+            public void performAssertionsAfterCatch(Object th) throws Exception {
+            }
+            
         });
         new AssertExtenstionsTestTemplate(){
             @Override
             void assertThatIsExpectedToPass() throws Exception {
-                assertThrows(NumberFormatException.class, new Runnable(){
+                assertThrows(NumberFormatException.class, new ExceptionRunnable(){
                     @Override
                     public void run() {
                         Double.parseDouble("a");
@@ -162,7 +188,7 @@ public class ExceptionAssertExtensionsTest {
             }
             @Override
             void assertThatIsExpectedToFailOnWrongException() throws Exception {
-                assertThrows(ArithmeticException.class, new Runnable(){
+                assertThrows(ArithmeticException.class, new ExceptionRunnable(){
                     @Override
                     public void run() {
                         Double.parseDouble("a");
@@ -171,7 +197,7 @@ public class ExceptionAssertExtensionsTest {
             }
             @Override
             void assertThatIsExpectedToFailOnMissingException() throws Exception {
-                assertThrows(NumberFormatException.class, new Runnable(){
+                assertThrows(NumberFormatException.class, new ExceptionRunnable(){
                     @Override
                     public void run() {
                         Double.parseDouble("1.0");
@@ -184,7 +210,7 @@ public class ExceptionAssertExtensionsTest {
         new AssertExtenstionsTestTemplate(){
             @Override
             void assertThatIsExpectedToPass() throws Exception {
-                assertThrows(Exception.class,  new Runnable() {
+                assertThrows(Exception.class,  new ExceptionRunnable() {
                     @Override
                     public void run() {
                         Double.parseDouble("a");
@@ -193,7 +219,7 @@ public class ExceptionAssertExtensionsTest {
             }
             @Override
             void assertThatIsExpectedToFailOnWrongException() throws Exception {
-                assertThrows(IOException.class, new Runnable() {
+                assertThrows(IOException.class, new ExceptionRunnable() {
                     @Override
                     public void run() {
                         Double.parseDouble("a");
@@ -202,7 +228,7 @@ public class ExceptionAssertExtensionsTest {
             }
             @Override
             void assertThatIsExpectedToFailOnMissingException() throws Exception {
-                assertThrows(Exception.class,  new Runnable() {
+                assertThrows(Exception.class,  new ExceptionRunnable() {
                     @Override
                     public void run() {
                         Double.parseDouble("1.0");
@@ -219,6 +245,7 @@ public class ExceptionAssertExtensionsTest {
      * <li>Runnable that throws</li>
      * <li>Custom Message</li>
      * </ul>
+     * @throws java.lang.Exception
      */
     @Test
     public void testAssertThrows_Exception_Runnable_Message() throws Exception {
@@ -226,7 +253,7 @@ public class ExceptionAssertExtensionsTest {
         new AssertExtenstionsTestTemplate(){
             @Override
             void assertThatIsExpectedToPass() throws Exception {
-                assertThrows(NumberFormatException.class, new Runnable(){
+                assertThrows(NumberFormatException.class, new ExceptionRunnable(){
                     @Override
                     public void run() {
                         Double.parseDouble("a");
@@ -235,7 +262,7 @@ public class ExceptionAssertExtensionsTest {
             }
             @Override
             void assertThatIsExpectedToFailOnWrongException() throws Exception {
-                assertThrows(ArithmeticException.class, new Runnable(){
+                assertThrows(ArithmeticException.class, new ExceptionRunnable(){
                     @Override
                     public void run() {
                         Double.parseDouble("a");
@@ -244,7 +271,7 @@ public class ExceptionAssertExtensionsTest {
             }
             @Override
             void assertThatIsExpectedToFailOnMissingException() throws Exception {
-                assertThrows(NumberFormatException.class, new Runnable(){
+                assertThrows(NumberFormatException.class, new ExceptionRunnable(){
                     @Override
                     public void run() {
                         Double.parseDouble("1.0");
@@ -260,6 +287,7 @@ public class ExceptionAssertExtensionsTest {
      * <li>Exception</li>
      * <li>ExceptionAssertionsPerformer</li>
      * </ul>
+     * @throws java.lang.Exception
      */
     @Test
     public void testAssertThrowsAndDoAssertsInCatch_Exception_Performer() throws Exception {
@@ -331,6 +359,7 @@ public class ExceptionAssertExtensionsTest {
      * <li>ExceptionAssertionsPerformer</li>
      * <li>Custom Message</li>
      * </ul>
+     * @throws java.lang.Exception
      */
     @Test
     public void testAssertThrowsAndDoAssertsInCatch_Exception_Performer_Message() throws Exception {
@@ -464,6 +493,7 @@ public class ExceptionAssertExtensionsTest {
      * @throws Exception  
      */
     @Test
+    @SuppressWarnings({"BroadCatchBlock", "TooBroadCatch", "UseSpecificCatch"})
     public void testAssertConstructorThrows() throws NoSuchMethodException, Exception {
         System.out.println("assertConstuctorThrows");
         
@@ -518,36 +548,36 @@ public class ExceptionAssertExtensionsTest {
         new AssertExtenstionsTestTemplate(){
             @Override
             void assertThatIsExpectedToPass() throws Exception {
-                assertThrows("For input string: \"a\"", NumberFormatException.class,  new Runnable() {
+                assertThrows("For input string: \"a\"", NumberFormatException.class,  new ExceptionRunnable() {
                     @Override
-                    public void run() {
+                    public void run() throws Throwable {
                         Double.parseDouble("a");
                     }
                 });
             }
             @Override
             void assertThatIsExpectedToFailOnWrongException() throws Exception {
-                assertThrows("For input string: \"a\"", ArithmeticException.class, new Runnable() {
+                assertThrows("For input string: \"a\"", ArithmeticException.class, new ExceptionRunnable() {
                     @Override
-                    public void run() {
+                    public void run() throws Throwable {
                         Double.parseDouble("a");
                     }
                 });
             }
             @Override
             void assertThatIsExpectedToFailOnMissingException() throws Exception {
-                assertThrows("For input string: \"a\"", NumberFormatException.class,  new Runnable() {
+                assertThrows("For input string: \"a\"", NumberFormatException.class,  new ExceptionRunnable() {
                     @Override
-                    public void run() {
+                    public void run() throws Throwable {
                         Double.parseDouble("1.0");
                     }
                 });
             }
             @Override
             void assertThatIsExpectedToFailOnWrongExceptionMessage() throws Exception {
-                assertThrows("a message", NumberFormatException.class,  new Runnable() {
+                assertThrows("a message", NumberFormatException.class,  new ExceptionRunnable() {
                     @Override
-                    public void run() {
+                    public void run() throws Throwable {
                         Double.parseDouble("a");
                     }
                 });
@@ -572,36 +602,36 @@ public class ExceptionAssertExtensionsTest {
         new AssertExtenstionsTestTemplate(){
             @Override
             void assertThatIsExpectedToPass() throws Exception {
-                assertThrows("For input string: \"a\"", NumberFormatException.class,  new Runnable() {
+                assertThrows("For input string: \"a\"", NumberFormatException.class,  new ExceptionRunnable() {
                     @Override
-                    public void run() {
+                    public void run() throws Throwable {
                         Double.parseDouble("a");
                     }
                 }, "custom message");
             }
             @Override
             void assertThatIsExpectedToFailOnWrongException() throws Exception {
-                assertThrows("For input string: \"a\"", ArithmeticException.class, new Runnable() {
+                assertThrows("For input string: \"a\"", ArithmeticException.class, new ExceptionRunnable() {
                     @Override
-                    public void run() {
+                    public void run() throws Throwable {
                         Double.parseDouble("a");
                     }
                 }, "custom message");
             }
             @Override
             void assertThatIsExpectedToFailOnMissingException() throws Exception {
-                assertThrows("For input string: \"a\"", NumberFormatException.class,  new Runnable() {
+                assertThrows("For input string: \"a\"", NumberFormatException.class,  new ExceptionRunnable() {
                     @Override
-                    public void run() {
+                    public void run() throws Throwable {
                         Double.parseDouble("1.0");
                     }
                 }, "custom message");
             }
             @Override
             void assertThatIsExpectedToFailOnWrongExceptionMessage() throws Exception {
-                assertThrows("a message", NumberFormatException.class,  new Runnable() {
+                assertThrows("a message", NumberFormatException.class,  new ExceptionRunnable() {
                     @Override
-                    public void run() {
+                    public void run() throws Throwable {
                         Double.parseDouble("a");
                     }
                 }, "custom message");

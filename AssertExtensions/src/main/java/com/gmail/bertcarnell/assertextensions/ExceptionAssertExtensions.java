@@ -54,34 +54,30 @@ public class ExceptionAssertExtensions {
     }
 
     /**
-     * Checks that the logic wrapped by the given Runnable throw an exception of the specified type (only valid for
-     * RuntimeExceptions given that the run method of the Runnable interface exposes no throws signature).
+     * Checks that the logic wrapped by the given <code>ExceptionRunnable</code> throws an exception of the specified type 
      *
-     * @param excType
-     *            The Class corresponding to the expected exception.
-     * @param throwerClosure
-     *            Closure like object that represents the code expected to throw an exception.
+     * @param <T> a type that extends <code>Throwable</code>
+     * @param excType The Class corresponding to the expected exception.
+     * @param throwerClosure Closure like object that represents the code expected to throw an exception.
      */
     public static <T extends Throwable> void assertThrows(@NotNull Class<T> excType, 
-            @NotNull final Runnable throwerClosure) {
+            @NotNull final ExceptionRunnable throwerClosure) {
         assertThrows(excType, throwerClosure, null);
     }
 
     /**
      * Similar to the other assertThrows methods. Allows us to pass a custom fail message in case the assertion doesn't pass.
      *
-     * @param excType
-     *            The Class corresponding to the expected exception.
-     * @param throwerClosure
-     *            Closure like object that represents the code expected to throw an exception.
-     * @param customFailMessage
-     *            Message to throw if the wrong exception is thrown
+     * @param <T> a type that extends <code>Throwable</code>
+     * @param excType The Class corresponding to the expected exception.
+     * @param throwerClosure Closure like object that represents the code expected to throw an exception.
+     * @param customFailMessage Message to throw if the wrong exception is thrown
      */
     public static <T extends Throwable> void assertThrows(Class<T> excType, 
-            final Runnable throwerClosure, String customFailMessage) {
+            final ExceptionRunnable throwerClosure, String customFailMessage) {
         ExceptionAssertionsPerformer<T> excAssertsPerformer = new ExceptionAssertionsPerformer<T>() {
             @Override
-            public void performThrowingAction() {
+            public void performThrowingAction() throws Throwable {
                 throwerClosure.run();
             }
 
@@ -95,11 +91,10 @@ public class ExceptionAssertExtensions {
 
     /**
      * Checks if the given exception type is thrown and perform the given assertions in that exception object.
-     * @param excType
-     *            The Class corresponding to the expected exception.
-     * @param excAssertsPerformer
-     *            An object that provides methods to perform that will throw and
-     *            methods to perform after the catch.
+     * @param <T> a type that extends <code>Throwable</code>
+     * @param excType The Class corresponding to the expected exception.
+     * @param excAssertsPerformer An object that provides methods to perform that will throw and 
+     * methods to perform after the catch.
      */
     public static <T extends Throwable> void assertThrowsAndDoAssertsInCatch(Class<T> excType,
             ExceptionAssertionsPerformer<T> excAssertsPerformer) {
@@ -108,13 +103,11 @@ public class ExceptionAssertExtensions {
 
     /**
      * Similar to the method with the same name. Allows us to customize the error message.
-     * @param excType
-     *            The Class corresponding to the expected exception.
-     * @param excAssertsPerformer
-     *            An object that provides methods to perform that will throw and
-     *            methods to perform after the catch.
-     * @param customFailMessage
-     *            Message to throw if the wrong exception is thrown
+     * @param <T> a type that extends <code>Throwable</code>
+     * @param excType The Class corresponding to the expected exception.
+     * @param excAssertsPerformer An object that provides methods to perform that will throw and
+     * methods to perform after the catch.
+     * @param customFailMessage Message to throw if the wrong exception is thrown
      */
     @SuppressWarnings("unchecked")
     public static <T extends Throwable> void assertThrowsAndDoAssertsInCatch(Class<T> excType,
@@ -135,34 +128,34 @@ public class ExceptionAssertExtensions {
     }
     
     /**
-     * 
-     * @param <T> A class that extends Throwable
-     * @param excType
-     * @param excMessage
-     * @param throwerClosure 
+     * Assert that a specific type of <code>Throwable</code> is thrown with a specific exception
+     * @param <T> a type that extends <code>Throwable</code>
+     * @param excType The Class corresponding to the expected exception.
+     * @param excMessage The expected message attached to the Exception
+     * @param throwerClosure Closure like object that represents the code expected to throw an exception.
      */
     public static <T extends Throwable> void assertThrows(@NotNull String excMessage,
-            @NotNull Class<T> excType, @NotNull final Runnable throwerClosure)
+            @NotNull Class<T> excType, @NotNull final ExceptionRunnable throwerClosure)
     {
         assertThrows(excMessage, excType, throwerClosure, null);
     }
     
     /**
-     * 
-     * @param <T>
-     * @param excType
-     * @param excMessage
-     * @param throwerClosure
-     * @param customFailMessage 
+     * Assert that a specific type of <code>Throwable</code> is thrown with a specific exception, producing a specific message
+     * @param <T> a type that extends <code>Throwable</code>
+     * @param excType The Class corresponding to the expected exception.
+     * @param excMessage The expected message attached to the Exception
+     * @param throwerClosure Closure like object that represents the code expected to throw an exception.
+     * @param customFailMessage A message to be used if the assert fails
      */
     public static <T extends Throwable> void assertThrows(@NotNull String excMessage,
-            @NotNull Class<T> excType, @NotNull final Runnable throwerClosure,
+            @NotNull Class<T> excType, @NotNull final ExceptionRunnable throwerClosure,
             String customFailMessage)
     {
         ExceptionAssertionsPerformer<T> eap = new ExceptionAssertionsPerformer<T>() 
         {
             @Override
-            public void performThrowingAction() {
+            public void performThrowingAction() throws Throwable {
                 throwerClosure.run();
             }
 
@@ -174,6 +167,14 @@ public class ExceptionAssertExtensions {
         assertThrowsSpecificException(excMessage, excType, eap, customFailMessage);
     }
     
+    /**
+     * 
+     * @param <T> a type that extends <code>Throwable</code>
+     * @param excType The Class corresponding to the expected exception.
+     * @param excMessage The expected message attached to the Exception
+     * @param excAssertsPerformer a class of type <code>ExceptionAssertionsPerformer</code>
+     * @param customFailMessage A message to be used if the assert fails
+     */
     public static <T extends Throwable> void assertThrowsSpecificException(String excMessage,
             @NotNull Class<T> excType, @NotNull ExceptionAssertionsPerformer<T> excAssertsPerformer,
             String customFailMessage)
@@ -239,14 +240,10 @@ public class ExceptionAssertExtensions {
      * </ul>
      * </ul>
      *
-     * @param expectedException
-     *            The class of the expected exception type
-     * @param target
-     *            the target object that the method will be called from
-     * @param methodName
-     *            the name of the method that is to be called
-     * @param arguments
-     *            the arguments to be passed to the method
+     * @param expectedException The class of the expected exception type
+     * @param target the target object that the method will be called from
+     * @param methodName the name of the method that is to be called
+     * @param arguments the arguments to be passed to the method
      */
     public static void assertThrows(@NotNull Class<? extends Throwable> expectedException, @NotNull Object target,
             @NotNull String methodName, Object... arguments) {
@@ -272,16 +269,11 @@ public class ExceptionAssertExtensions {
      * Unit test to assert that a specific type of exception with a specific message is thrown
      *
      * @see assertThrows
-     * @param message
-     *            The expected message
-     * @param expectedException
-     *            The class of the expected exception type
-     * @param target
-     *            the target object that the method will be called from
-     * @param methodName
-     *            the name of the method that is to be called
-     * @param arguments
-     *            the arguments to be passed to the method
+     * @param message The expected message
+     * @param expectedException The class of the expected exception type
+     * @param target the target object that the method will be called from
+     * @param methodName the name of the method that is to be called
+     * @param arguments the arguments to be passed to the method
      */
     public static void assertThrows(@NotNull String message, @NotNull Class<? extends Throwable> expectedException, @NotNull Object target,
             @NotNull String methodName, Object... arguments) {
@@ -312,12 +304,9 @@ public class ExceptionAssertExtensions {
      * <b>Warning:</b> This method cannot tell the difference between constructors when the only difference is a primitive type.
      * For example, it cannot tell the difference between A(double[], Object, double) and A(double[], Object, int)
      *
-     * @param expectedException
-     *            The class of the expected exception type
-     * @param constr
-     *            the target constructor
-     * @param arguments
-     *            the arguments to be passed to the constructor
+     * @param expectedException The class of the expected exception type
+     * @param constr the target constructor
+     * @param arguments the arguments to be passed to the constructor
      */
     public static void assertConstuctorThrows(@NotNull Class<? extends Throwable> expectedException, @NotNull Constructor<?> constr,
             Object... arguments) {
