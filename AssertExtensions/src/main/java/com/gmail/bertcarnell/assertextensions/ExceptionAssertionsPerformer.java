@@ -24,10 +24,10 @@ package com.gmail.bertcarnell.assertextensions;
 
 /**
  * Interface to wrap the required logic to:
- * <ul>
+ * <ol>
  * <li>Execute the statement/s that is/are expected to throw an exception (method performThrowingAction()).</li>
  * <li>Do the corresponding assertions on the exception thrown (method performAssertionsAfterCatch(T)).</li>
- * </ul>
+ * </ol>
  * We pass this functions into the corresponding static methods in the <code>AssertExtensions</code> class.
  * @author Mariano Navas
  * @author Rob Carnell
