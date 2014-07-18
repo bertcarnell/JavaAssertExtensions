@@ -24,10 +24,10 @@ package com.gmail.bertcarnell.assertextensions;
 
 /**
  * Interface to wrap the required logic to:
- * <ol>
- * <li>Execute the statement/s that is/are expected to throw an exception (method performThrowingAction()).</li>
- * <li>Do the corresponding assertions on the exception thrown (method performAssertionsAfterCatch(T)).</li>
- * </ol>
+ * <ul>
+ * <li>Execute the statement/s that is/are expected to throw an exception (method <code>performThrowingAction()</code>).</li>
+ * <li>Do the corresponding assertions on the exception thrown (method <code>performAssertionsAfterCatch(T)</code>).</li>
+ * </ul>
  * We pass this functions into the corresponding static methods in the <code>AssertExtensions</code> class.
  * @author Mariano Navas
  * @author Rob Carnell
@@ -37,7 +37,7 @@ package com.gmail.bertcarnell.assertextensions;
 public interface ExceptionAssertionsPerformer<T> {
     /**
      * Method that is expected to throw an exception of type <code>T</code> or assignable from type <code>T</code>
-     * @throws java.lang.Throwable
+     * @throws Throwable
      */
     void performThrowingAction() throws Throwable;
 

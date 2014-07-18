@@ -23,8 +23,8 @@
 package com.gmail.bertcarnell.assertextensions;
 
 /**
- * Exception Runnable is an interface similar to Runnable that allows for the run()
- * method to throw a <code>Throwable</code>.  If Runnable is used to call a a method that throws
+ * This class is an interface similar to Runnable that allows for the <code>run()</code>
+ * method to throw a <code>Throwable</code>.  If <code>Runnable</code> is used to call a a method that throws
  * then it would normally need to be surrounded with a <code>try-catch</code> which defeats the purpose
  * of this testing library.
  * 
