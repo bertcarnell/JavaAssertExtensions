@@ -1,7 +1,7 @@
 language: java
 
 script:
-  - cd JavaAssertExtensions
+  - cd AssertExtensions
   - mvn clean
   - mvn compile
   - mvn package
